@@ -1,6 +1,9 @@
 import app from './app/app.js'
 import connectDB from './config/index.js'
 import logger from './app/utils/logger.js'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 const PORT = process.env.PORT || 5000
 

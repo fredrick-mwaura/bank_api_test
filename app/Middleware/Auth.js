@@ -1,7 +1,7 @@
 import jwt from  'jsonwebtoken'
-import User from '../Models/User'
-import logger from '../utils/logger'
-import Account from '../Models/Account'
+import User from '../Models/User.js'
+import logger from '../utils/logger.js'
+import Account from '../Models/Account.js'
 
 class AuthMiddleware{
   static async authenticate(req, res, next){

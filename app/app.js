@@ -3,7 +3,7 @@ import cors from 'cors'
 import helmet from 'helmet'
 import mongoSanitize from 'express-mongo-sanitize'
 import compression from 'compression'
-import { configDotenv } from 'dotenv'
+import dotenv from 'dotenv'
 import errorHandler from './Middleware/ErrorHandler.js'
 import { rateLimiters } from './Middleware/RateLimiter.js'
 import authRoutes from '../routes/auth.js'
@@ -13,6 +13,11 @@ import transactionRoutes from '../routes/transaction.js'
 import { requestLogger } from './Middleware/RequestLogger.js'
 
 const app = express()
+
+dotenv.config();
+
+app.set("view engine", "ejs");
+app.set("views", "./Resources/Views");
 
 //rate limiting behind reverse proxy
 app.set('trust proxy', 1)
@@ -60,6 +65,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/accounts', accountRoutes);
 app.use('/api/transactions', transactionRoutes)
+app.use('auth', authRoutes)
 
 //handle 404
 
@@ -69,7 +75,7 @@ app.use('*', (req, res) => {
     message: `Route ${req.originalUrl} not found`
   })
 })
-
+console.log('allo')
 //exceptions
 app.use(errorHandler)
 
