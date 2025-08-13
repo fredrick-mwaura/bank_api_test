@@ -16,6 +16,10 @@ router.post('/register',
   authController.register
 );
 
+router.get('/register', (req, res) => {
+  res.render('Auth/Register'); // Render registration page
+});
+
 router.post('/login', 
   rateLimiters.auth,
   ValidationMiddleware.validateLogin(),

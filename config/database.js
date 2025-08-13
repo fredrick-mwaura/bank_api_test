@@ -1,5 +1,7 @@
 import mongoose from 'mongoose'
 import logger from '../app/utils/logger.js';
+import User from '../app/Models/User.js';
+import bcrypt from 'bcryptjs';
 
 // Laravel-style database configuration
 class DatabaseConfig {
@@ -391,7 +393,6 @@ class DatabaseConfig {
       logger.info('Seeding database with initial data...');
 
       // Check if data already exists
-      const User = require('../models/User');
       const existingUsers = await User.countDocuments();
 
       if (existingUsers > 0) {
@@ -400,7 +401,6 @@ class DatabaseConfig {
       }
 
       // Create admin user
-      const bcrypt = require('bcryptjs');
       const adminPassword = await bcrypt.hash('Admin123!', 12);
 
       await User.create({
