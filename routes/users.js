@@ -15,15 +15,12 @@ router.put('/profile',
   userController.updateProfile
 );
 
-router.post('/upload-avatar', userController.uploadAvatar);
-router.delete('/avatar', userController.deleteAvatar);
-
 // User preferences
-router.get('/preferences', userController.getPreferences);
-router.put('/preferences', 
-  ValidationMiddleware.validatePreferences(),
-  userController.updatePreferences
-);
+// router.get('/preferences', userController.getPreferences);
+// router.put('/preferences', 
+//   ValidationMiddleware.validatePreferences(),
+//   userController.updatePreferences
+// );
 
 // User notifications
 router.get('/notifications', 
@@ -38,13 +35,11 @@ router.put('/notifications/:id/read',
 
 router.put('/notifications/read-all', userController.markAllNotificationsAsRead);
 
-// User activity logs
-router.get('/activity', 
-  ValidationMiddleware.validatePagination(),
-  userController.getActivityLog
-);
+// router.get('/activity', 
+//   ValidationMiddleware.validatePagination(),
+//   userController.getActivityLog
+// );
 
-// Admin only routes
 router.use(AuthMiddleware.authorize('admin'));
 
 router.get('/', 

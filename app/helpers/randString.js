@@ -1,5 +1,5 @@
 /**
- * common function that used in this project
+ * rand string
  */
 
 export const randomString = (length) => {

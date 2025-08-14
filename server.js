@@ -1,15 +1,14 @@
 import app from './app/app.js'
 import connectDB from './config/index.js'
 import logger from './app/utils/logger.js'
-import dotenv from 'dotenv'
+import { config } from './config/index.js'
 
-dotenv.config()
 
-const PORT = process.env.PORT || 5000
+const port = config.app.port|| 5000
 
 connectDB();
 
-const server = app.listen(PORT, () => {
+const server = app.listen(port, () => {
   logger.info('server running.')
 })
 

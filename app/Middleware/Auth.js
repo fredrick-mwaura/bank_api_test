@@ -2,6 +2,7 @@ import jwt from  'jsonwebtoken'
 import User from '../Models/User.js'
 import logger from '../utils/logger.js'
 import Account from '../Models/Account.js'
+import {config} from '../../config/index.js'
 
 class AuthMiddleware{
   static async authenticate(req, res, next){
@@ -13,8 +14,8 @@ class AuthMiddleware{
           message: 'Access denied. no token is provided'
         });
       }
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findById(decoded.id).select('-password');
+      const decoded = jwt.verify(token, config.jwt.secret);
+      const user = await User.findOne({"email": decoded.email}).select('-password -createdAt -updatedAt -__v');
 
       if(!user){
         return res.status(401).json({
@@ -41,7 +42,7 @@ class AuthMiddleware{
           message: 'token expired'
         })
       }
-      res.status(401).json({
+      return res.status(401).json({
         status: 'error',
         message: 'Invalid token'
       })
@@ -74,7 +75,7 @@ class AuthMiddleware{
       next();
     }catch(error){
       logger.error('account ownership error ', error)
-      res.status(500).json({
+      return res.status(500).json({
         status: 'error',
         message: 'Server error during account verification.'
       })

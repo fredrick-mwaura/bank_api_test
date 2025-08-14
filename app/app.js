@@ -11,6 +11,7 @@ import userRoutes from '../routes/users.js'
 import accountRoutes from '../routes/account.js'
 import transactionRoutes from '../routes/transaction.js'
 import { requestLogger } from './Middleware/RequestLogger.js'
+import { config } from '../config/index.js'
 
 const app = express()
 
@@ -26,7 +27,7 @@ app.set('trust proxy', 1)
 app.use(helmet())
 app.use(securityHeaders);
 app.use(cors({
-  origin: process.env.FRONTEND_URL, //||fallback
+  origin: config.cors.origin, //||fallback
   credentials: true,
   methods:[
     'GET', 'POST', 'PUT', 'DELETE', 'PATCH'

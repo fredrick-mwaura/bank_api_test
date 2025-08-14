@@ -64,7 +64,7 @@ export const config = {
   upload: {
     maxFileSize: parseInt(process.env.MAX_FILE_SIZE) || 5 * 1024 * 1024, // 5MB
     allowedMimeTypes: (process.env.ALLOWED_MIME_TYPES || 'image/jpeg,image/png,application/pdf').split(','),
-    uploadPath: process.env.UPLOAD_PATH || './uploads',
+    uploadPath: process.env.UPLOAD_PATH || '/uploads',
     tempPath: process.env.TEMP_PATH || './temp'
   },
 
