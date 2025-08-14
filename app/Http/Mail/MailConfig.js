@@ -1,10 +1,8 @@
 import nodemailer from 'nodemailer'
-import dotenv from 'dotenv'
+import { config } from '../../../config/index';
 
-dotenv.config()
-
-let myEmail = process.env.SMTP_USER ?? "fredrickmwaura691@gmail.com";
-let password = process.env.SMTP_PASS ?? "sdvofrpatinaujjl"
+let myEmail = config.mail.username ?? "fredrickmwaura691@gmail.com";
+let password = config.mail.password ?? "sdvofrpatinaujjl"
 // console.log(myEmail, password)
 
 const transporter = nodemailer.createTransport({

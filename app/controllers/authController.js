@@ -4,11 +4,9 @@ import { RegisterRequest } from '../Http/Requests/RegisterRequest.js'
 import User from '../Models/User.js'
 import bcrypt from 'bcryptjs'
 import ResetPassword from '../Http/Mail/ResetPassword.js'
-import dontenv from 'dotenv'
 import { config } from '../../config/index.js'
 import jwt from 'jsonwebtoken'
 
-dontenv.config()
 const app = express()
 app.use(express.json())
 
@@ -47,7 +45,7 @@ app.post('/register', RegisterRequest(), async (req, res) => {
 
     await user.save()
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'successfully registered!'
     })
@@ -88,7 +86,8 @@ app.post("/login", async (req, res) => {
           "lastName": 1,
           "phoneNumber": 1,
           "email": 1,
-          "dateOfBirth": 1
+          "dateOfBirth": 1,
+          "image": 1,
         }
       }
     ]);

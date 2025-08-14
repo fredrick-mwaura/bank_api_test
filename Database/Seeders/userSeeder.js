@@ -9,7 +9,7 @@ const UserSeeder = async () => {
   try{
     await mongoose.connect(process.env.MONGODB_URI)
 
-    // ---delete existing user
+    // ---delete existing users
     // await User.deleteMany(); 
 
     const hashedPassword = await bcrypt.hash("testuser", 10)
