@@ -1,7 +1,7 @@
 import express from 'express'
 import * as authController from '../app/controllers/authController.js'
 import * as AuthMiddleware from '../app/Middleware/Auth.js'
-import * as ValidationMiddleware from '../app/Middleware/Validation.js'
+import {ValidationMiddleware} from '../app/Middleware/Validation.js'
 import * as rateLimiters from '../app/Middleware/RateLimiter.js'
 
 
@@ -13,7 +13,7 @@ const router = express.Router();
 router.post('/register', 
   rateLimiters.auth,
   ValidationMiddleware.validateRegistration(),
-  authController.register
+  authController.register()
 );
 
 router.get('/register', (req, res) => {
@@ -23,47 +23,46 @@ router.get('/register', (req, res) => {
 router.post('/login', 
   rateLimiters.auth,
   ValidationMiddleware.validateLogin(),
-  authController.login
+  authController.login()
 );
 
 router.post('/forgot-password', 
   rateLimiters.passwordReset,
   ValidationMiddleware.validatePasswordReset(),
-  authController.forgotPassword
+  authController.forgotPassword()
 );
 
 router.post('/reset-password', 
   rateLimiters.passwordReset,
   ValidationMiddleware.validateNewPassword(),
-  authController.resetPassword
+  authController.resetPassword()
 );
 
 router.post('/verify-email', 
   ValidationMiddleware.validateObjectId('token'),
-  authController.verifyEmail
+  userController.verifyEmail()
 );
 
 router.post('/resend-verification', 
   rateLimiters.auth,
   ValidationMiddleware.validatePasswordReset(), // Reuse email validation
-  authController.resendVerification
+  userController.resendVerification()
 );
 
 // Protected routes (authentication required)
 router.use(AuthMiddleware.authenticate); // Apply auth middleware to all routes below
 
-router.post('/refresh-token', authController.refreshToken);
-router.post('/logout', authController.logout);
-router.post('/logout-all', authController.logoutAll); // Logout from all devices
-router.get('/me', authController.getProfile);
+// router.post('/refresh-token', authController.refreshToken());
+// router.post('/logout', authController.logout());
+router.get('/me', authController.getProfile());
 router.put('/me', 
   ValidationMiddleware.validateProfileUpdate(),
-  authController.updateProfile
+  authController.updateProfile()
 );
 
 router.post('/change-password', 
   ValidationMiddleware.validatePasswordChange(),
-  authController.changePassword
+  authController.changePassword()
 );
 
 // router.post('/enable-2fa', authController.enableTwoFactor);
@@ -71,10 +70,10 @@ router.post('/change-password',
 // router.post('/verify-2fa', authController.verifyTwoFactor);
 
 // Security routes
-router.get('/sessions', authController.getActiveSessions);
+router.get('/sessions', authController.getActiveSessions());
 router.delete('/sessions/:sessionId', 
   ValidationMiddleware.validateObjectId('sessionId'),
-  authController.terminateSession
+  authController.terminateSession()
 );
 
 export default router;

@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer'
-import { config } from '../../../config/index';
+import { config } from '../../../config/index.js';
 
 let myEmail = config.mail.username ?? "fredrickmwaura691@gmail.com";
 let password = config.mail.password ?? "sdvofrpatinaujjl"

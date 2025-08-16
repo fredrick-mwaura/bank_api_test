@@ -18,7 +18,7 @@ export const config = {
   jwt: {
     secret: process.env.JWT_SECRET,
     expiresIn: process.env.JWT_EXPIRES,
-    refreshSecret: process.env.JWT_REFRESH_EXPIRE,
+    refreshSecret: process.env.JWT_REFRESH_SECRET,
     issuer: process.env.JWT_ISSUER,
     audience: process.env.JWT_AUDIENCE
   },
@@ -96,6 +96,9 @@ export const config = {
     ttl: parseInt(process.env.CACHE_TTL) || 3600 // 1 hour
   }
 };
+// console.log("JWT_SECRET from env:", config.jwt.secret);
+
+// console.log(config.app.name, config.jwt.refreshSecret)
 
 // Validate required configuration
 const validateConfig = () => {
@@ -111,13 +114,13 @@ const validateConfig = () => {
   }
 
   // Validate JWT secret length
-  if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
-    throw new Error('JWT_SECRET must be at least 32 characters long');
+  if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 64) {
+    throw new Error('JWT_SECRET must be at least 64 characters long');
   }
 
   // Validate encryption key length
-  if (process.env.ENCRYPTION_KEY && process.env.ENCRYPTION_KEY.length !== 32) {
-    throw new Error('ENCRYPTION_KEY must be exactly 32 characters long');
+  if (process.env.ENCRYPTION_KEY && process.env.ENCRYPTION_KEY.length !== 64) {
+    throw new Error('ENCRYPTION_KEY must be exactly 64 characters long');
   }
 };
 

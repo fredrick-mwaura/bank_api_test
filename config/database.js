@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import logger from '../app/utils/logger.js';
+// import logger from '../app/utils/logger.js';
 import User from '../app/Models/User.js';
 import bcrypt from 'bcryptjs';
 
@@ -83,7 +83,7 @@ class DatabaseConfig {
   async connect() {
     try {
       if (this.isConnected) {
-        logger.info('Database already connected');
+        alert('Database already connected');
         return this.connection;
       }
 
@@ -439,16 +439,15 @@ const connectDB = async () => {
   return await databaseConfig.connect();
 };
 
-// Export other methods
-module.exports = {
-  connectDB,
+export default {
+  connectDB: connectDB,
   disconnect: () => databaseConfig.disconnect(),
   healthCheck: () => databaseConfig.healthCheck(),
   createIndexes: () => databaseConfig.createIndexes(),
   dropDatabase: () => databaseConfig.dropDatabase(),
   getConnectionStatus: () => databaseConfig.getConnectionStatus(),
   seedDatabase: () => databaseConfig.seedDatabase(),
-  
+
   // Export the instance for advanced usage
   instance: databaseConfig
 };

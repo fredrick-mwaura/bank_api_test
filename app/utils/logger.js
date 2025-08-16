@@ -1,6 +1,11 @@
 import winston from 'winston'
 import path from 'path'
-import config from '../../config/index.js'
+import {config} from '../../config/index.js'
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 const logger = winston.createLogger({
   level: config.logging.level || 'info',

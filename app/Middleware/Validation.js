@@ -196,4 +196,3 @@ export class ValidationMiddleware {
     ];
   }
 }
-// export default ValidationMiddleware;

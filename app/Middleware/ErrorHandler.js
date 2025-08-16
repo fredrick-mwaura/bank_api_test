@@ -1,7 +1,7 @@
 import logger from '../utils/logger.js';
 
 // Laravel-style error handler
-const errorHandler = (err, req, res, next) => {
+export const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
 
@@ -71,4 +71,3 @@ const errorHandler = (err, req, res, next) => {
   });
 };
 
-module.exports = errorHandler;

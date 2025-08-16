@@ -10,7 +10,7 @@ import jwt from 'jsonwebtoken'
 const app = express()
 app.use(express.json())
 
-app.post('/register', RegisterRequest(), async (req, res) => {
+export const register = (RegisterRequest(), async (req, res) => {
 
   const errors = validationResult(req);
 
@@ -60,7 +60,7 @@ app.post('/register', RegisterRequest(), async (req, res) => {
 
 })
 
-app.post("/login", async (req, res) => {
+export const login = (async (req, res) => {
   const {email, password} = req.body;
 
   try{
@@ -109,7 +109,7 @@ app.post("/login", async (req, res) => {
   }
 })
 
-app.post('/forgot-password', async (req, res) => {
+export const forgotPassword = ( async (req, res) => {
   const {email} = req.body;
   if( !email.trim()){
     res.status(422).json({
@@ -138,6 +138,9 @@ app.post('/forgot-password', async (req, res) => {
   }
 })
 
-async function Logout(){
+export const logout = (async (req, res) => {
   
-}
+  res.status(200).json({
+    success: true
+  })
+})

@@ -1,5 +1,5 @@
 import User from '../Models/User.js'
-import { AuthMiddleware } from '../Middleware/Auth.js';
+import AuthMiddleware from '../Middleware/Auth.js';
 import upload from '../helpers/multer.js';
 import Notification from '../Models/Notification.js';
 
