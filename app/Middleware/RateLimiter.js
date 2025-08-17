@@ -29,34 +29,16 @@ const createLimiter = (windowMs, max, message, skipSuccessfulRequests = false) =
   });
 };
 
-// Different rate limiters for different endpoints (Laravel-style throttling groups)
+
+/**
+ * @param {number} windowMs - Time window in ms
+ * @param {number} max - Max number of requests
+ * @param {string} message - Error message
+ * @param {boolean} skipSuccessfulRequests - Skip counting successful requests
+ */
 export const rateLimiters = {
-  // Global rate limiter
-  global: createLimiter(
-    15 * 60 * 1000, // 15 minutes
-    100, // 100 requests per window
-    'Too many requests from this IP, please try again later.'
-  ),
-
-  // Authentication rate limiter (stricter)
-  auth: createLimiter(
-    15 * 60 * 1000, // 15 minutes
-    5, // 5 attempts per window
-    'Too many authentication attempts, please try again later.',
-    true // Skip successful requests
-  ),
-
-  // Transaction rate limiter
-  transaction: createLimiter(
-    1 * 60 * 1000, // 1 minute
-    10, // 10 transactions per minute
-    'Too many transaction requests, please slow down.'
-  ),
-
-  // Password reset rate limiter
-  passwordReset: createLimiter(
-    60 * 60 * 1000, // 1 hour
-    3,
-    'Too many password reset attempts, please try again later.'
-  )
+  global: createLimiter(15 * 60 * 1000, 100, 'Too many requests from this IP, please try again later.'),
+  auth: createLimiter(15 * 60 * 1000, 5, 'Too many authentication attempts, please try again later.', true),
+  transaction: createLimiter(1 * 60 * 1000, 10, 'Too many transaction requests, please slow down.'),
+  passwordReset: createLimiter(60 * 60 * 1000, 3, 'Too many password reset attempts, please try again later.'),
 };

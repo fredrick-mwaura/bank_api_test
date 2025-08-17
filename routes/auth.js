@@ -10,7 +10,7 @@ const router = express.Router();
 // Laravel-style route grouping for authentication
 
 // Public routes (no authentication required)
-router.post('/register', 
+router.post('/register',
   rateLimiters.auth,
   ValidationMiddleware.validateRegistration(),
   authController.register()
@@ -23,30 +23,30 @@ router.get('/register', (req, res) => {
 router.post('/login', 
   rateLimiters.auth,
   ValidationMiddleware.validateLogin(),
-  authController.login()
+  authController.login
 );
 
 router.post('/forgot-password', 
   rateLimiters.passwordReset,
   ValidationMiddleware.validatePasswordReset(),
-  authController.forgotPassword()
+  authController.forgotPassword
 );
 
 router.post('/reset-password', 
   rateLimiters.passwordReset,
   ValidationMiddleware.validateNewPassword(),
-  authController.resetPassword()
+  authController.resetPassword
 );
 
 router.post('/verify-email', 
   ValidationMiddleware.validateObjectId('token'),
-  userController.verifyEmail()
+  userController.verifyEmail
 );
 
 router.post('/resend-verification', 
   rateLimiters.auth,
   ValidationMiddleware.validatePasswordReset(), // Reuse email validation
-  userController.resendVerification()
+  userController.resendVerification
 );
 
 // Protected routes (authentication required)
@@ -57,12 +57,12 @@ router.use(AuthMiddleware.authenticate); // Apply auth middleware to all routes 
 router.get('/me', authController.getProfile());
 router.put('/me', 
   ValidationMiddleware.validateProfileUpdate(),
-  authController.updateProfile()
+  authController.updateProfile
 );
 
 router.post('/change-password', 
   ValidationMiddleware.validatePasswordChange(),
-  authController.changePassword()
+  authController.changePassword
 );
 
 // router.post('/enable-2fa', authController.enableTwoFactor);
@@ -73,7 +73,7 @@ router.post('/change-password',
 router.get('/sessions', authController.getActiveSessions());
 router.delete('/sessions/:sessionId', 
   ValidationMiddleware.validateObjectId('sessionId'),
-  authController.terminateSession()
+  authController.terminateSession
 );
 
 export default router;
