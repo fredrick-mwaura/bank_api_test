@@ -1,18 +1,12 @@
-import bcrypt from "bcryptjs";
-// import jwt from "jsonwebtoken";
-import crypto from "crypto";
-
-import User from "../Models/User.js";
-import RefreshToken from "../Models/refreshToken.js";
-
-import * as auditService from "../services/auditService.js";
-import * as emailService from "../services/emailService.js";
-
-import logger from "../utils/logger.js";
-import config from "../config/index.js";
-
-import { generateTokens, verifyRefreshToken } from "../utils/tokenUtils.js";
-
+import bcrypt from "bcryptjs"
+import crypto from "crypto"
+import User from "../Models/User.js"
+import RefreshToken from "../Models/refreshToken.js"
+import * as auditService from "../Services/AuditService.js"
+import * as emailService from "../Services/EmailService.js"
+import logger from "../utils/logger.js"
+import {config} from "../../config/index.js"
+import { generateTokens, verifyRefreshToken } from "../utils/tokenUtils.js"
 
 // Laravel-style authentication controller
 class AuthController {
@@ -38,7 +32,7 @@ class AuthController {
       const hashedPassword = await bcrypt.hash(password, config.security.bcryptRounds)
 
       // Encrypt sensitive data (SSN)
-      const { encrypt } = require("../utils/encryption")
+      const { encrypt } = await import("../utils/encryption.js")
       const encryptedSSN = encrypt(ssn)
 
       // Generate email verification token
@@ -89,7 +83,13 @@ class AuthController {
         status: "success",
         message: "Registration successful. Please check your email to verify your account.",
         data: {
-          user: user,
+          user: {
+            id: user._id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            isEmailVerified: user.isEmailVerified,
+          },
         },
       })
     } catch (error) {
@@ -547,6 +547,51 @@ class AuthController {
     }
   }
 
+  // Resend verification email
+  async resendVerification(req, res) {
+    try {
+      const { email } = req.body
+
+      const user = await User.findOne({ email: email.toLowerCase() })
+
+      if (!user) {
+        return res.status(404).json({
+          status: "error",
+          message: "User not found",
+        })
+      }
+
+      if (user.isEmailVerified) {
+        return res.status(400).json({
+          status: "error",
+          message: "Email is already verified",
+        })
+      }
+
+      // Generate new verification token
+      const emailVerificationToken = crypto.randomBytes(32).toString("hex")
+      const emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+
+      user.emailVerificationToken = emailVerificationToken
+      user.emailVerificationExpires = emailVerificationExpires
+      await user.save()
+
+      // Send verification email
+      await emailService.sendVerificationEmail(user.email, emailVerificationToken)
+
+      res.status(200).json({
+        status: "success",
+        message: "Verification email sent successfully",
+      })
+    } catch (error) {
+      logger.error("Resend verification error:", error)
+      res.status(500).json({
+        status: "error",
+        message: "Failed to resend verification email",
+      })
+    }
+  }
+
   // Get user profile
   async getProfile(req, res) {
     try {
@@ -561,6 +606,46 @@ class AuthController {
       res.status(500).json({
         status: "error",
         message: "Failed to fetch profile",
+      })
+    }
+  }
+
+  // Update profile
+  async updateProfile(req, res) {
+    try {
+      const userId = req.user._id
+      const updates = req.body
+
+      delete updates.password
+      delete updates.email
+      delete updates.role
+      delete updates.status
+
+      const user = await User.findByIdAndUpdate(userId, updates, {
+        new: true,
+        runValidators: true,
+      }).select("-password")
+
+      await auditService.logActivity({
+        userId,
+        action: "profile_updated",
+        resource: "user",
+        resourceId: userId,
+        metadata: { updatedFields: Object.keys(updates) },
+        ipAddress: req.ip,
+        userAgent: req.get("User-Agent"),
+      })
+
+      res.status(200).json({
+        status: "success",
+        message: "Profile updated successfully",
+        data: { user },
+      })
+    } catch (error) {
+      logger.error("Update profile error:", error)
+      res.status(500).json({
+        status: "error",
+        message: "Failed to update profile",
       })
     }
   }
@@ -618,6 +703,120 @@ class AuthController {
       })
     }
   }
+
+  async enableTwoFactor(req, res) {
+    try {
+      // Implementation for 2FA setup
+      res.status(501).json({
+        status: "error",
+        message: "Two-factor authentication not implemented yet",
+      })
+    } catch (error) {
+      logger.error("Enable 2FA error:", error)
+      res.status(500).json({
+        status: "error",
+        message: "Failed to enable two-factor authentication",
+      })
+    }
+  }
+
+  // Disable two-factor authentication
+  async disableTwoFactor(req, res) {
+    try {
+      // Implementation for 2FA disable
+      res.status(501).json({
+        status: "error",
+        message: "Two-factor authentication not implemented yet",
+      })
+    } catch (error) {
+      logger.error("Disable 2FA error:", error)
+      res.status(500).json({
+        status: "error",
+        message: "Failed to disable two-factor authentication",
+      })
+    }
+  }
+
+  // Verify two-factor authentication
+  async verifyTwoFactor(req, res) {
+    try {
+      // Implementation for 2FA verification
+      res.status(501).json({
+        status: "error",
+        message: "Two-factor authentication not implemented yet",
+      })
+    } catch (error) {
+      logger.error("Verify 2FA error:", error)
+      res.status(500).json({
+        status: "error",
+        message: "Failed to verify two-factor authentication",
+      })
+    }
+  }
+
+  // Get active sessions
+  async getActiveSessions(req, res) {
+    try {
+      const userId = req.user._id
+
+      const sessions = await RefreshToken.getUserSessions(userId)
+
+      res.status(200).json({
+        status: "success",
+        data: { sessions },
+      })
+    } catch (error) {
+      logger.error("Get active sessions error:", error)
+      res.status(500).json({
+        status: "error",
+        message: "Failed to fetch active sessions",
+      })
+    }
+  }
+
+  // Terminate session
+  async terminateSession(req, res) {
+    try {
+      const { sessionId } = req.params
+      const userId = req.user._id
+
+      const result = await RefreshToken.deleteOne({
+        sessionId,
+        userId,
+      })
+
+      if (result.deletedCount === 0) {
+        return res.status(404).json({
+          status: "error",
+          message: "Session not found",
+        })
+      }
+
+      // Log session termination
+      await auditService.logActivity({
+        userId,
+        action: "session_terminated",
+        resource: "auth",
+        metadata: { sessionId },
+        ipAddress: req.ip,
+        userAgent: req.get("User-Agent"),
+      })
+
+      res.status(200).json({
+        status: "success",
+        message: "Session terminated successfully",
+      })
+    } catch (error) {
+      logger.error("Terminate session error:", error)
+      res.status(500).json({
+        status: "error",
+        message: "Failed to terminate session",
+      })
+    }
+  }
 }
 
-module.exports = new AuthController()
+// Create and export controller instance
+const authController = new AuthController()
+
+export default authController

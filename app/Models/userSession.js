@@ -95,12 +95,6 @@ const userSessionSchema = new mongoose.Schema(
   },
 )
 
-// Indexes
-userSessionSchema.index({ userId: 1, status: 1 })
-userSessionSchema.index({ sessionId: 1 }, { unique: true })
-userSessionSchema.index({ lastActivityAt: 1 })
-userSessionSchema.index({ loginAt: -1 })
-
 // Virtual for session duration
 userSessionSchema.virtual("duration").get(function () {
   const endTime = this.logoutAt || this.lastActivityAt || new Date()

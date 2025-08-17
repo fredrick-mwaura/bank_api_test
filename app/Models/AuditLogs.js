@@ -106,17 +106,6 @@ const auditLogSchema = new mongoose.Schema(
   },
 )
 
-// Indexes for performance
-auditLogSchema.index({ userId: 1, timestamp: -1 })
-auditLogSchema.index({ action: 1, timestamp: -1 })
-auditLogSchema.index({ category: 1, severity: 1, timestamp: -1 })
-auditLogSchema.index({ ipAddress: 1, timestamp: -1 })
-auditLogSchema.index({ timestamp: -1 }) // For general sorting
-auditLogSchema.index({ resourceId: 1, resource: 1 })
-
-// TTL index for automatic cleanup (keep logs for 7 years for compliance)
-auditLogSchema.index({ timestamp: 1 }, { expireAfterSeconds: 7 * 365 * 24 * 60 * 60 })
-
 // Add pagination plugin
 auditLogSchema.plugin(mongoosePaginate)
 

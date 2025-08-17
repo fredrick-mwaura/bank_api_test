@@ -1,9 +1,10 @@
 import express  from 'express'
 import * as accountController from '../app/controllers/accountController.js'
-import * as AuthMiddleware from '../app/Middleware/Auth.js'
 import {ValidationMiddleware} from '../app/Middleware/Validation.js';
+import AuthMiddleware from "../app/Middleware/AuthMiddleware.js"
 
-const router = express.Router();
+const router = express.Router()
+
 
 
 // All account routes require authentication
@@ -11,7 +12,7 @@ router.use(AuthMiddleware.authenticate);
 
 // Account management routes
 router.get('/', 
-  ValidationMiddleware.validatePagination(),
+  // ValidationMiddleware.validatePagination(),
   accountController.getAccounts
 );
 

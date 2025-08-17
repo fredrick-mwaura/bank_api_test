@@ -1,5 +1,5 @@
-const mongoose = require("mongoose")
-const mongoosePaginate = require("mongoose-paginate-v2")
+import mongoose from "mongoose"
+import mongoosePaginate from "mongoose-paginate-v2"
 
 // Laravel-style RefreshToken model for session management
 const refreshTokenSchema = new mongoose.Schema(
@@ -161,19 +161,6 @@ const refreshTokenSchema = new mongoose.Schema(
     collection: "refresh_tokens",
   },
 )
-
-// Indexes for performance and security
-refreshTokenSchema.index({ token: 1 }, { unique: true })
-refreshTokenSchema.index({ userId: 1, status: 1 })
-refreshTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }) // TTL index
-refreshTokenSchema.index({ ipAddress: 1, createdAt: -1 })
-refreshTokenSchema.index({ deviceFingerprint: 1, userId: 1 })
-refreshTokenSchema.index({ tokenFamily: 1, createdAt: -1 })
-refreshTokenSchema.index({ "securityFlags.isSuspicious": 1, status: 1 })
-
-// Compound indexes for common queries
-refreshTokenSchema.index({ userId: 1, expiresAt: 1, status: 1 })
-refreshTokenSchema.index({ userId: 1, ipAddress: 1, createdAt: -1 })
 
 // Virtual for checking if token is expired
 refreshTokenSchema.virtual("isExpired").get(function () {
@@ -417,4 +404,4 @@ refreshTokenSchema.plugin(mongoosePaginate)
 // Create and export model
 const RefreshToken = mongoose.model("RefreshToken", refreshTokenSchema)
 
-module.exports = RefreshToken
+export default RefreshToken

@@ -1,12 +1,13 @@
-const Transaction = require("../models/Transaction")
-const Account = require("../models/Account")
-const User = require("../models/User")
-const transactionService = require("../services/transactionService")
-const notificationService = require("../services/notificationService")
-const auditService = require("../services/auditService")
-const logger = require("../utils/logger")
-const { generateTransactionId } = require("../utils/helpers")
-const config = require("../config")
+import Transaction from "../Models/Transaction.js"
+import Account from "../Models/Account.js"
+import User from "../Models/User.js"
+import transactionService from "../Services/transactionService.js"
+import notificationService from "../Services/notificationService.js"
+import auditService from "../Services/AuditService.js"
+import logger from "../utils/logger.js"
+import { generateTransactionId } from "../helpers/randString.js"
+import {config} from "../../config/index.js"
+import ScheduledTransaction from "../Models/ScheduledTransaction.js"
 
 // Laravel-style transaction controller
 class TransactionController {
@@ -720,8 +721,6 @@ class TransactionController {
       const userId = req.user._id
       const { page = 1, limit = 20, status = "active" } = req.query
 
-      const ScheduledTransaction = require("../models/ScheduledTransaction")
-
       const options = {
         page: Number.parseInt(page),
         limit: Number.parseInt(limit),
@@ -808,8 +807,6 @@ class TransactionController {
       const userId = req.user._id
       const updates = req.body
 
-      const ScheduledTransaction = require("../models/ScheduledTransaction")
-
       const scheduledTransaction = await ScheduledTransaction.findOne({
         _id: id,
         userId,
@@ -845,8 +842,6 @@ class TransactionController {
     try {
       const { id } = req.params
       const userId = req.user._id
-
-      const ScheduledTransaction = require("../models/ScheduledTransaction")
 
       const scheduledTransaction = await ScheduledTransaction.findOne({
         _id: id,
@@ -1027,4 +1022,4 @@ class TransactionController {
   }
 }
 
-module.exports = new TransactionController()
+export default TransactionController

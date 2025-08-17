@@ -3,7 +3,7 @@ import { config } from '../../../config/index.js';
 
 let myEmail = config.mail.username ?? "fredrickmwaura691@gmail.com";
 let password = config.mail.password ?? "sdvofrpatinaujjl"
-// console.log(myEmail, password)
+console.log(myEmail, password)
 
 const transporter = nodemailer.createTransport({
   service: "gmail",

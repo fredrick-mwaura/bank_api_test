@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 // import logger from '../app/utils/logger.js';
 import User from '../app/Models/User.js';
 import bcrypt from 'bcryptjs';
+import logger from '../app/utils/logger.js';
 
 // Laravel-style database configuration
 class DatabaseConfig {
@@ -21,7 +22,6 @@ class DatabaseConfig {
           socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
           family: 4, // Use IPv4, skip trying IPv6
           bufferCommands: false, // Disable mongoose buffering
-          bufferMaxEntries: 0, // Disable mongoose buffering
           retryWrites: true,
           retryReads: true,
           writeConcern: {
@@ -42,7 +42,6 @@ class DatabaseConfig {
           socketTimeoutMS: 45000,
           family: 4,
           bufferCommands: false,
-          bufferMaxEntries: 0
         }
       },
       
@@ -56,7 +55,6 @@ class DatabaseConfig {
           socketTimeoutMS: 45000,
           family: 4,
           bufferCommands: false,
-          bufferMaxEntries: 0,
           retryWrites: true,
           retryReads: true,
           ssl: true, // Enable SSL for production
@@ -106,8 +104,8 @@ class DatabaseConfig {
       this.isConnected = true;
 
       logger.info('MongoDB connected successfully', {
-        host: this.maskConnectionString(config.uri),
-        database: this.connection.connection.name,
+        // host: this.maskConnectionString(config.uri),
+        // database: this.connection.connection.name,
         readyState: this.connection.connection.readyState
       });
 
@@ -440,7 +438,7 @@ const connectDB = async () => {
 };
 
 export default {
-  connectDB: connectDB,
+  connectDB,
   disconnect: () => databaseConfig.disconnect(),
   healthCheck: () => databaseConfig.healthCheck(),
   createIndexes: () => databaseConfig.createIndexes(),

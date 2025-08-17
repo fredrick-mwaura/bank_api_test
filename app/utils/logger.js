@@ -6,6 +6,9 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const appLog = '../../Resources/log/app.log'
+const ErrorLog = '../../Resources/log/error.log'
+
 
 const logger = winston.createLogger({
   level: config.logging.level || 'info',
@@ -20,13 +23,13 @@ const logger = winston.createLogger({
   transports: [
     // Write all logs with importance level of 'error' or less to error.log
     new winston.transports.File({ 
-      filename: path.join(__dirname, '../../logs/error.log'), 
+      filename: path.join(__dirname, ErrorLog), 
       level: 'error' 
     }),
     
     // Write all logs with importance level of 'info' or less to combined.log
     new winston.transports.File({ 
-      filename: path.join(__dirname, '../../logs/combined.log') 
+      filename: path.join(__dirname, appLog) 
     })
   ]
 });

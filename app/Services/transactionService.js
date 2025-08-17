@@ -1,9 +1,9 @@
-import Transaction from "../models/Transaction.js"
-import Account from "../models/Account.js"
+import Transaction from "../Models/Transaction.js"
+import Account from "../Models/Account.js"
 import mongoose from "mongoose"
 import logger from "../utils/logger.js"
-import { generateTransactionId } from "../utils/helpers/randString.js"
-import config from "../config"
+import { generateTransactionId } from "../helpers/randString.js"
+import {config} from "../../config/index.js"
 
 // Laravel-style transaction service
 class TransactionService {
@@ -438,5 +438,4 @@ class TransactionService {
     return { start, end: now }
   }
 }
-
-module.exports = new TransactionService()
+export default TransactionService

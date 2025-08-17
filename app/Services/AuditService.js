@@ -1,5 +1,5 @@
 import mongoose from "mongoose"
-import AuditLog from "../models/AuditLog.js"
+import AuditLog from "../Models/AuditLogs.js"
 import logger from "../utils/logger.js"
 
 // Laravel-style audit service for comprehensive activity logging

@@ -3,7 +3,7 @@ import fs from "fs/promises"
 import path from "path"
 import { fileURLToPath } from "url"
 import logger from "../utils/logger.js"
-import { config } from "../config/index.js"
+import { config } from "../../config/index.js"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -19,13 +19,13 @@ class EmailService {
   // Initialize email transporter
   async initializeTransporter() {
     try {
-      this.transporter = nodemailer.createTransporter({
+      this.transporter = nodemailer.createTransport({
         host: config.mail.host,
         port: config.mail.port,
         secure: config.mail.port === 465, // true for 465, false for other ports
         auth: {
-          user: config.mail.username,
-          pass: config.mail.password,
+          user: config.mail.username ?? 'fredrickmwaura691@gmailcom',
+          pass: config.mail.password ?? "sdvofrpatinaujjl",
         },
         tls: {
           rejectUnauthorized: process.env.NODE_ENV === "production",
@@ -421,4 +421,7 @@ export const sendMaintenanceNotification = emailService.sendMaintenanceNotificat
 export const testEmailConfiguration = emailService.testEmailConfiguration.bind(emailService)
 export const getEmailStatistics = emailService.getEmailStatistics.bind(emailService)
 
+
+  console.log(config.mail.username )
+console.log('hehehheehheheheh' ,config.mail.password )
 export default emailService
