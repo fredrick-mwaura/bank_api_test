@@ -24,6 +24,23 @@ const userSchema = new mongoose.Schema({
     unique: true,
     minlength: 6,
   },
+  isEmailVerified: {
+    type: String,
+    enum: ["true", "false"],
+    default: "false"
+  },
+  emailVerificationToken: {
+    type: String,
+    default: null,
+  },
+  emailVerificationExpires: {
+    type: Date,
+    default: null,
+  },
+  emailVerifiedAt: {
+    type: Date,
+    default: null
+  },
   phoneNumber: {
     type: String,
     required: true,
@@ -33,9 +50,11 @@ const userSchema = new mongoose.Schema({
     required: true
   },
   snn: {
-    type: String,
-    required: true
+    encrypted: { type: String, required: true },
+    iv: { type: String, required: true },
+    authTag: { type: String, required: true }
   },
+
   address: {
     street: String,
     city: String,
@@ -46,7 +65,7 @@ const userSchema = new mongoose.Schema({
   accountType: {
     type: String,
     enum: ['checking', 'savings', 'business'],
-    required: true
+    // required: true
   },
   balance: {
     type: Number,
@@ -66,7 +85,7 @@ const userSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true    
+    // required: true
   },
   dailyTransactionLimit: {
     type: Number,

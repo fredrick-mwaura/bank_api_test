@@ -26,10 +26,9 @@ function wrapMethod(app, method) {
       if (typeof path === "string" && path.includes(":")) {
         // quick sanity check for invalid `:`
         if (/:(\/|$)/.test(path)) {
-          console.error(`⚠️  Suspicious path detected (${method.toUpperCase()}): "${path}"`);
+          console.error(` Suspicious path detected (${method.toUpperCase()}): "${path}"`);
         }
       }
-
       return orig(path, ...handlers);
     } catch (err) {
       console.error(`Route registration failed (${method.toUpperCase()}): "${path}"`);
@@ -43,16 +42,32 @@ function wrapMethod(app, method) {
   wrapMethod(app, method)
 );
 
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
-// const securityHeaders = (req, res, next) => {
-//   res.setHeaders("X-Content-Type-Options", "nosniff");
-//   res.setHeader("X-Frame-Options", "DENY");
-//   res.setHeaders("X-XSS-Protection", "1; mode=block");
-//   next();
-// }
+app.use((req, _res, next) => {
+	Object.defineProperty(req, 'query', {
+		...Object.getOwnPropertyDescriptor(req, 'query'),
+		value: req.query,
+		writable: true,
+	})
+
+	next()
+})
+
+app.use(mongoSanitize())
+
+
+/* const securityHeaders = (req, res, next) => {
+   res.setHeaders("X-Content-Type-Options", "nosniff");
+   res.setHeader("X-Frame-Options", "DENY");
+   res.setHeaders("X-XSS-Protection", "1; mode=block");
+   next();
+ }
+*/
 
 app.set("view engine", "ejs");
-app.set("views", "../Resources/Views");
+app.set("views", "Resources/Views");
 
 //rate limiting behind reverse proxy
 app.set('trust proxy', 1)
@@ -88,9 +103,14 @@ app.use('/api', rateLimiters.global);
 //status
 app.get('/connection-health', (req, res)=> {
   if(req.method !== "GET") return
+  console.log(config.jwt.expiresIn)
+  console.log('allllo', config.security.encryptionKey.length)
+
   res.status(200).json({
     status: 'success',
     message: 'API running',
+    len: config.security.encryptionKey.length,
+    iss: config.jwt.issuer,
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'dev'
   });
@@ -111,6 +131,20 @@ app.use((req, res) => {
     message: `Route ${req.originalUrl} not found`
   });
 });
+
+// app.use((req, res, next) => {
+//   let _query = req.query;
+//   Object.defineProperty(req, "query", {
+//     get: () => _query,
+//     set: (val) => {
+//       console.trace("⚠️ req.query was reassigned:", val);
+//       throw new Error("Do not assign req.query directly");
+//     },
+//     configurable: true
+//   });
+//   next();
+// });
+
 
 //exceptions
 app.use(errorHandler)

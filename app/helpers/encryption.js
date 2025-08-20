@@ -1,15 +1,15 @@
 import crypto from "crypto"
-import config from "../config/index.js"
+import { config } from "../../config/index.js"
 
 const algorithm = "aes-256-gcm"
-const secretKey = config.security.encryptionKey
+// Parse from hex string in your config
+const secretKey = Buffer.from(config.security.encryptionKey, "hex")
+const ivLength = 16
 
 // Encrypt function
 export const encrypt = (text) => {
-  if (!text) return null
-
-  const iv = crypto.randomBytes(16)
-  const cipher = crypto.createCipher(algorithm, secretKey)
+  const iv = crypto.randomBytes(ivLength)
+  const cipher = crypto.createCipheriv(algorithm, secretKey, iv)
 
   let encrypted = cipher.update(text, "utf8", "hex")
   encrypted += cipher.final("hex")
@@ -28,7 +28,11 @@ export const decrypt = (encryptedData) => {
   if (!encryptedData) return null
 
   const { encrypted, iv, authTag } = encryptedData
-  const decipher = crypto.createDecipher(algorithm, secretKey)
+  const decipher = crypto.createDecipheriv(
+    algorithm,
+    secretKey,
+    Buffer.from(iv, "hex")
+  )
 
   decipher.setAuthTag(Buffer.from(authTag, "hex"))
 

@@ -8,15 +8,24 @@ const router = express.Router()
 
 // Laravel-style route grouping for authentication
 router.get("/register", (req, res) => {
-  res.render("Auth/Register", {
+  res.render("Auth/Register.ejs", {
     title: "register", 
     message: "welcome buddy!"
   })
 })
-// Public routes (no authentication required)
-router.post("/register", rateLimiters.auth, ValidationMiddleware.validateRegistration(), authController.register)
 
-router.post("/login", rateLimiters.auth, ValidationMiddleware.validateLogin(), authController.login)
+router.get(
+  '/verify-email/:token',
+  // ValidationMiddleware.validateObjectId("token"),
+  authController.verifyEmail
+)
+// Public routes (no authentication required)
+router.post("/register", authController.register) // ValidationMiddleware.validateRegistration(),
+
+router.post("/login", 
+  rateLimiters.auth, 
+  // ValidationMiddleware.validateLogin(), 
+  authController.login)
 
 router.post(
   "/forgot-password",
@@ -31,8 +40,6 @@ router.post(
   ValidationMiddleware.validateNewPassword(),
   authController.resetPassword,
 )
-
-router.post("/verify-email", ValidationMiddleware.validateObjectId("token"), authController.verifyEmail)
 
 router.post(
   "/resend-verification",

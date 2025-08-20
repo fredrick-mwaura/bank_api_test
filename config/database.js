@@ -13,10 +13,10 @@ class DatabaseConfig {
     // Database configuration options (Laravel-style config)
     this.config = {
       development: {
-        uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/Bank_api',
+        uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/banking_api',
         options: {
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
+          // useNewUrlParser: true,
+          // useUnifiedTopology: true,
           maxPoolSize: 10, // Maximum number of connections
           serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
           socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
@@ -33,10 +33,10 @@ class DatabaseConfig {
       },
       
       test: {
-        uri: process.env.MONGODB_TEST_URI || 'mongodb://localhost:27017/Bank_api',
+        uri: process.env.MONGODB_TEST_URI || 'mongodb://localhost:27017/banking_api',
         options: {
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
+          // useNewUrlParser: true,
+          // useUnifiedTopology: true,
           maxPoolSize: 5,
           serverSelectionTimeoutMS: 5000,
           socketTimeoutMS: 45000,
@@ -48,8 +48,8 @@ class DatabaseConfig {
       production: {
         uri: process.env.MONGODB_URI,
         options: {
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
+          // useNewUrlParser: true,
+          // useUnifiedTopology: true,
           maxPoolSize: 20, // Increased pool size for production
           serverSelectionTimeoutMS: 5000,
           socketTimeoutMS: 45000,
@@ -408,7 +408,7 @@ class DatabaseConfig {
         password: adminPassword,
         phoneNumber: '+1234567890',
         dateOfBirth: new Date('1990-01-01'),
-        ssn: '123-45-6789',
+        snn: '123-45-6789',
         role: 'admin',
         status: 'active',
         isEmailVerified: true,

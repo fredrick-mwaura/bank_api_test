@@ -3,7 +3,7 @@ import crypto from 'crypto'
 const algorithm = 'aes-256-gcm'
 const secretKey = process.env.ENCRIPTION_KEY
 
-export const encypt = (text) => {
+export const encrypt = (text) => {
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv(algorithm, iv);
 

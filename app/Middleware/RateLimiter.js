@@ -38,7 +38,7 @@ const createLimiter = (windowMs, max, message, skipSuccessfulRequests = false) =
  */
 export const rateLimiters = {
   global: createLimiter(15 * 60 * 1000, 100, 'Too many requests from this IP, please try again later.'),
-  auth: createLimiter(15 * 60 * 1000, 5, 'Too many authentication attempts, please try again later.', true),
+  auth: createLimiter(15 * 60 * 1000, 5, 'Too many authentication attempts, please try again later.', false),
   transaction: createLimiter(1 * 60 * 1000, 10, 'Too many transaction requests, please slow down.'),
   passwordReset: createLimiter(60 * 60 * 1000, 3, 'Too many password reset attempts, please try again later.'),
 };

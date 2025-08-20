@@ -7,13 +7,15 @@ import * as emailService from "../Services/EmailService.js"
 import logger from "../utils/logger.js"
 import {config} from "../../config/index.js"
 import { generateTokens, verifyRefreshToken } from "../utils/tokenUtils.js"
+import { encrypt } from "../helpers/encryption.js"
 
 // Laravel-style authentication controller
 class AuthController {
   // User registration
   async register(req, res) {
     try {
-      const { firstName, lastName, email, password, phoneNumber, dateOfBirth, ssn } = req.body
+      console.log('allllo', req.body)
+      const { firstName, lastName, email, password, confirm_password, phoneNumber, dateOfBirth, snn } = req.body
 
       // Check if user already exists
       const existingUser = await User.findOne({
@@ -28,12 +30,18 @@ class AuthController {
         })
       }
 
+      if(password !== confirm_password){
+        return res.status(400).json({
+          success: false,
+          message: "password do not match!"
+        })
+      }
+
       // Hash password with higher rounds for banking security
       const hashedPassword = await bcrypt.hash(password, config.security.bcryptRounds)
 
-      // Encrypt sensitive data (SSN)
-      const { encrypt } = await import("../utils/encryption.js")
-      const encryptedSSN = encrypt(ssn)
+      // Encrypt sensitive data (snn)
+      const encryptedsnn = encrypt(snn)
 
       // Generate email verification token
       const emailVerificationToken = crypto.randomBytes(32).toString("hex")
@@ -47,7 +55,7 @@ class AuthController {
         password: hashedPassword,
         phoneNumber,
         dateOfBirth: new Date(dateOfBirth),
-        ssn: encryptedSSN,
+        snn: encryptedsnn,
         emailVerificationToken,
         emailVerificationExpires,
         status: "inactive", // Require email verification
@@ -96,7 +104,7 @@ class AuthController {
       logger.error("Registration error:", error)
       res.status(500).json({
         status: "error",
-        message: "Registration failed. Please try again.",
+        message: "Registration failed. Please try again." + error,
       })
     }
   }
@@ -112,6 +120,9 @@ class AuthController {
       const user = await User.findOne({
         email: email.toLowerCase(),
       }).select("+password +loginAttempts +lockUntil")
+      // User.find().then(users => {
+      //   console.log(users);
+      // });
 
       if (!user) {
         await auditService.logActivity({
@@ -126,7 +137,7 @@ class AuthController {
         })
 
         return res.status(401).json({
-          status: "error",
+          status: "401",
           message: "Invalid email or password",
         })
       }
@@ -156,7 +167,7 @@ class AuthController {
 
       if (!isPasswordValid) {
         // Increment login attempts
-        await user.incLoginAttempts()
+        // await user.incLoginAttempts()
 
         await auditService.logActivity({
           userId: user._id,
@@ -255,7 +266,7 @@ class AuthController {
       logger.error("Login error:", error)
       res.status(500).json({
         status: "error",
-        message: "Login failed. Please try again.",
+        message: "Login failed. Please try again." + error,
       })
     }
   }
@@ -499,7 +510,14 @@ class AuthController {
   // Verify email
   async verifyEmail(req, res) {
     try {
-      const { token } = req.body
+      const { token } = req.params
+      console.log('token', token)
+      if(!token){
+        return res.render('Avuth/verify.ejs', {
+          title: 'no token provided',
+          message: 'no token provided'
+        })
+      }
 
       const user = await User.findOne({
         emailVerificationToken: token,
@@ -507,11 +525,12 @@ class AuthController {
       })
 
       if (!user) {
-        return res.status(400).json({
-          status: "error",
-          message: "Invalid or expired verification token",
-        })
+        return res.status(400).render("Auth/verify.ejs", {
+          title: "Verify Email",
+          message: "Invalid or expired verification token."
+        });
       }
+
 
       // Activate user account
       user.isEmailVerified = true
@@ -534,10 +553,10 @@ class AuthController {
       // Send welcome email
       await emailService.sendWelcomeEmail(user.email, user.firstName)
 
-      res.status(200).json({
-        status: "success",
-        message: "Email verified successfully. Your account is now active.",
-      })
+      return res.render("Auth/verify.ejs", {
+        title: "Verify Email",
+        message: "Your email has been verified successfully!"
+      });
     } catch (error) {
       logger.error("Email verification error:", error)
       res.status(500).json({

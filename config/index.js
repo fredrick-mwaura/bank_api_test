@@ -35,7 +35,7 @@ export const config = {
     }
   },
   security: {
-    encryptionKey: process.env.ENCRYPTION_KEY || 'your-32-character-encryption-key',
+    encryptionKey: process.env.ENCRYPTION_KEY,
     bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS) || 12,
     maxLoginAttempts: parseInt(process.env.MAX_LOGIN_ATTEMPTS) || 5,
     lockoutDuration: parseInt(process.env.LOCKOUT_DURATION) || 15 * 60 * 1000,

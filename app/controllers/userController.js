@@ -40,7 +40,7 @@ class UserController {
       delete updates.email
       delete updates.role
       delete updates.status
-      delete updates.ssn
+      delete updates.snn
 
       const user = await User.findByIdAndUpdate(userId, updates, {
         new: true,
@@ -273,7 +273,7 @@ class UserController {
         page: Number.parseInt(page),
         limit: Number.parseInt(limit),
         sort: { createdAt: -1 },
-        select: "-password -ssn",
+        select: "-password -snn",
       }
 
       const result = await User.paginate(filters, options)

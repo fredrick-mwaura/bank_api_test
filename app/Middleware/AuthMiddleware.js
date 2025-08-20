@@ -7,7 +7,9 @@ import {config} from '../../config/index.js'
 class AuthMiddleware{
   static async authenticate(req, res, next){
     try{
-      const token = req.header('Authorization')?.replace('Bearer ', '');
+      let token = req.header('Authorization')?.replace('Bearer ', '') || req.params.token;
+      console.log('token', token)
+
       if(!token){
         return res.status(401).json({
           status: 'error',

@@ -8,14 +8,14 @@
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
   <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
     <h2 class="text-2xl font-bold mb-6 text-center">Register</h2>
-    <form action="/register" method="POST" class="space-y-4">
+    <form action="/api/auth/register" method="POST" class="space-y-4">
       <div>
         <label for="firstname" class="block text-sm font-medium text-gray-700">First Name</label>
-        <input type="text" id="firstname" name="firstname" required class="mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <input type="text" id="firstname" name="firstName" required class="mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
       </div>
       <div>
         <label for="lastname" class="block text-sm font-medium text-gray-700">Last Name</label>
-        <input type="text" id="lastname" name="lastname" required class="mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <input type="text" id="lastname" name="lastName" required class="mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
       </div>
       <div>
         <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
@@ -27,7 +27,11 @@
       </div>
       <div>
         <label for="dateofbirth" class="block text-sm font-medium text-gray-700">Date of Birth</label>
-        <input type="date" id="dateofbirth" name="dateofbirth" required class="mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <input type="date" id="dateofbirth" name="dateOfBirth" required class="mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+      <div>
+        <label for="snn" class="block text-sm font-medium text-gray-700">S.N.N</label>
+        <input type="text" id="snn" name="snn" required class="mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
       </div>
       <div>
         <label for="password" class="block text-sm font-medium text-gray-700">Password</label>

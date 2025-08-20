@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email Address</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .gradient-header { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%); }
+        .gradient-button { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); }
+        .gradient-warning { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); }
+        .backdrop-blur { backdrop-filter: blur(20px); }
+        .button-hover:hover { transform: translateY(-2px); }
+        .shimmer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        .shimmer:hover::before { left: 100%; }
+        .pattern-dots {
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen p-5">
+    <div class="max-w-2xl mx-auto my-10 bg-white bg-opacity-95 backdrop-blur rounded-3xl shadow-2xl overflow-hidden border border-white border-opacity-20">
+        
+        <!-- Header -->
+        <div class="gradient-header relative p-10 text-center overflow-hidden">
+            <div class="pattern-dots absolute inset-0 opacity-30"></div>
+            <h1 class="relative z-10 text-white text-3xl font-bold mb-2 drop-shadow-sm">{{ appName }}</h1>
+            <div class="relative z-10 text-white text-opacity-90 text-sm font-medium">Welcome to the future</div>
+        </div>
+        
+        <!-- Content -->
+        <div class="relative bg-white p-12">
+            <!-- Accent line -->
+            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-16 h-1 gradient-button rounded-full"></div>
+            
+            <h2 class="text-gray-900 text-2xl font-semibold mb-5 text-center">🚀 Verify Your Email Address</h2>
+            
+            <p class="text-gray-600 text-base mb-6 leading-relaxed">
+                Welcome aboard! You're just one step away from unlocking your {{ appName }} experience. We're excited to have you join our community of innovators and creators.
+            </p>
+            
+            <p class="text-gray-600 text-base mb-10 leading-relaxed">
+                To complete your registration and activate your account, please verify your email address by clicking the button below:
+            </p>
+            
+            <!-- Button -->
+            <div class="text-center my-10">
+                <a href="{{ verificationUrl }}" 
+                   class="shimmer gradient-button button-hover relative inline-block text-white px-8 py-4 rounded-xl font-semibold text-base transition-all duration-300 shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 overflow-hidden">
+                    Verify Email Address
+                </a>
+            </div>
+            
+            <!-- Link section -->
+            <div class="bg-gray-50 p-5 rounded-xl my-8 border border-gray-200">
+                <p class="text-gray-500 text-sm mb-3">Button not working? Copy and paste this link into your browser:</p>
+                <div class="bg-white p-3 rounded-lg border border-gray-200 text-indigo-600 text-xs font-mono break-all">
+                    {{ verificationUrl }}
+                </div>
+            </div>
+            
+            <!-- Warning box -->
+            <div class="gradient-warning border border-amber-500 rounded-xl p-5 my-8">
+                <p class="text-amber-800 font-medium">
+                    <span class="inline-block w-5 h-5 bg-amber-500 text-white rounded-full text-xs font-bold text-center leading-5 mr-2">!</span>
+                    <strong>Time-sensitive:</strong> This verification link will expire in 24 hours for your security.
+                </p>
+            </div>
+            
+            <p class="text-gray-500 text-sm">
+                If you didn't create an account with us, please ignore this email and no action is required.
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="bg-gray-50 px-8 py-8 text-center border-t border-gray-200">
+            <p class="text-gray-600 text-sm mb-2">&copy; {{ currentYear }} {{ appName }}. All rights reserved.</p>
+            <p class="text-gray-600 text-sm mb-5">
+                Need help? Contact us at 
+                <a href="mailto:{{ supportEmail }}" class="text-indigo-600 hover:underline">{{ supportEmail }}</a>
+            </p>
+            
+            <!-- Social links -->
+            <div class="flex justify-center space-x-2">
+                <a href="#" class="w-9 h-9 bg-gray-300 hover:bg-indigo-600 text-gray-600 hover:text-white rounded-lg flex items-center justify-center transition-all duration-300 hover:-translate-y-0.5">
+                    <span class="text-sm font-bold">f</span>
+                </a>
+                <a href="#" class="w-9 h-9 bg-gray-300 hover:bg-indigo-600 text-gray-600 hover:text-white rounded-lg flex items-center justify-center transition-all duration-300 hover:-translate-y-0.5">
+                    <span class="text-sm font-bold">t</span>
+                </a>
+                <a href="#" class="w-9 h-9 bg-gray-300 hover:bg-indigo-600 text-gray-600 hover:text-white rounded-lg flex items-center justify-center transition-all duration-300 hover:-translate-y-0.5">
+                    <span class="text-sm font-bold">in</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile responsive adjustments -->
+    <style>
+        @media (max-width: 640px) {
+            .max-w-2xl { margin: 1.25rem auto; }
+            .gradient-header { padding: 2rem 1.25rem; }
+            .gradient-header h1 { font-size: 1.5rem; }
+            .bg-white.p-12 { padding: 2.5rem 1.5rem; }
+            .text-2xl { font-size: 1.25rem; }
+            .px-8.py-4 { padding: 0.875rem 1.75rem; font-size: 0.9375rem; }
+            .bg-gray-50.px-8.py-8 { padding: 1.5rem 1.25rem; }
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .bg-white { background-color: #111827; }
+            .text-gray-900 { color: #f9fafb; }
+            .text-gray-600 { color: #d1d5db; }
+            .bg-gray-50 { background-color: #1f2937; }
+            .border-gray-200 { border-color: #374151; }
+            .text-indigo-600 { color: #818cf8; }
+        }
+    </style>
+</body>
+</html>

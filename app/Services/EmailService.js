@@ -24,8 +24,8 @@ class EmailService {
         port: config.mail.port,
         secure: config.mail.port === 465, // true for 465, false for other ports
         auth: {
-          user: config.mail.username ?? 'fredrickmwaura691@gmailcom',
-          pass: config.mail.password ?? "sdvofrpatinaujjl",
+          user: config.mail.username ?? '',//fredrickmwaura691@gmailcom
+          pass: config.mail.password ?? "", //sdvofrpatinaujjl
         },
         tls: {
           rejectUnauthorized: process.env.NODE_ENV === "production",
@@ -48,7 +48,7 @@ class EmailService {
         return this.templates.get(templateName)
       }
 
-      const templatePath = path.join(__dirname, "../templates/emails", `${templateName}.html`)
+      const templatePath = path.join(__dirname, "../../Resources/Views/mails", `${templateName}.html`)
       const template = await fs.readFile(templatePath, "utf-8")
 
       this.templates.set(templateName, template)
@@ -141,7 +141,7 @@ class EmailService {
 
   // Send verification email
   async sendVerificationEmail(email, token) {
-    const verificationUrl = `${config.app.url}/verify-email?token=${token}`
+    const verificationUrl = `${config.app.url}/api/auth/verify-email?token=${token}`
 
     return this.sendTemplateEmail(email, "Verify Your Email Address", "email-verification", {
       verificationUrl,
@@ -422,6 +422,6 @@ export const testEmailConfiguration = emailService.testEmailConfiguration.bind(e
 export const getEmailStatistics = emailService.getEmailStatistics.bind(emailService)
 
 
-  console.log(config.mail.username )
-console.log('hehehheehheheheh' ,config.mail.password )
+//   console.log(config.mail.username )
+// console.log(' ,config.mail.password )
 export default emailService

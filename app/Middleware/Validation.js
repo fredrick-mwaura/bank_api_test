@@ -66,9 +66,9 @@ export class ValidationMiddleware {
           return true
         }),
 
-      body("ssn")
+      body("snn")
         .matches(/^\d{3}-\d{2}-\d{4}$/)
-        .withMessage("SSN must be in format XXX-XX-XXXX"),
+        .withMessage("snn must be in format XXX-XX-XXXX"),
 
       this.handleValidationErrors,
     ]

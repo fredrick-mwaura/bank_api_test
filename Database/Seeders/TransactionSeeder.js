@@ -9,8 +9,8 @@ const seedTransactions = async () => {
   try {
     // Connect to DB
     await mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/banking_api", {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
+      // useNewUrlParser: true,
+      // useUnifiedTopology: true
     });
     console.log('MongoDB Connected');
 
