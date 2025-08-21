@@ -94,6 +94,12 @@ export const config = {
     password: process.env.REDIS_PASSWORD || '',
     database: parseInt(process.env.REDIS_DB) || 0,
     ttl: parseInt(process.env.CACHE_TTL) || 3600 // 1 hour
+  },
+  twilio: {
+    sid: process.env.TWILIO_SERVICE_ID,
+    authtoken: process.env.TWILIO_AUTH_TOKEN,
+    acctId: process.env.TWILIO_ACCOUNT_ID,
+    phone: process.env.TWILIO_PHONE
   }
 };
 // console.log("JWT_SECRET from env:", config.jwt.secret);

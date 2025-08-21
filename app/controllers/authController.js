@@ -8,14 +8,17 @@ import logger from "../utils/logger.js"
 import {config} from "../../config/index.js"
 import { generateTokens, verifyRefreshToken } from "../utils/tokenUtils.js"
 import { encrypt } from "../helpers/encryption.js"
+import TwilioService from "../Services/TwilioService.js"
+import Device from "../Models/Device.js"
+import { sendPushNotification } from "../Services/firebase.js"
+import { deviceLogin } from "../Services/deviceService.js"
 
-// Laravel-style authentication controller
 class AuthController {
   // User registration
   async register(req, res) {
     try {
       console.log('allllo', req.body)
-      const { firstName, lastName, email, password, confirm_password, phoneNumber, dateOfBirth, snn } = req.body
+      const { firstName, lastName, email, password, confirm_password, phoneNumber, dateOfBirth, snn, pushToken, deviceId } = req.body
 
       // Check if user already exists
       const existingUser = await User.findOne({
@@ -67,6 +70,18 @@ class AuthController {
       // Send verification email
       await emailService.sendVerificationEmail(user.email, emailVerificationToken)
 
+      try{
+        const result = await TwilioService.sendVerificationCode(phoneNumber);
+        res.json({
+          status: "pending",
+          message: "OTP send",
+          sid: result.sid
+        })
+
+      }catch(err){
+          res.status(500).json({ status: "error", message: err.message });
+      }
+
       // Log registration attempt
       await auditService.logActivity({
         userId: user._id,
@@ -86,6 +101,8 @@ class AuthController {
         email: user.email,
         ip: req.ip,
       })
+
+      await deviceLogin(user._id, email || phoneNumber, deviceId, pushToken, true)
 
       res.status(201).json({
         status: "success",
@@ -109,10 +126,33 @@ class AuthController {
     }
   }
 
+  async verifyPhone(req, res){
+    try{
+      const {phone, code} = req.body
+      const check = await TwilioService.checkVerificationCode(phone, code)
+      if(check.status === 'approved'){
+        return res.status(200).json({
+          success: true,
+          message: "phone number verified successfully"
+        })
+      }
+      res.status(400).json({
+        success: false,
+        message: "invalid code"
+      })
+    }catch(err){
+      console.log("error in phone verification", err)
+      return res.status(500).json({
+        success: false,
+        message: "failed to verify phone number"
+      })      
+    }
+  }
+
   // User login
   async login(req, res) {
     try {
-      const { email, password, rememberMe = false } = req.body
+      const { email, password, deviceId, pushToken, rememberMe = false } = req.body
       const ipAddress = req.ip
       const userAgent = req.get("User-Agent")
 
@@ -239,6 +279,8 @@ class AuthController {
         email: user.email,
         ip: ipAddress,
       })
+
+      await deviceLogin(user._id, email, deviceId, pushToken, false)
 
       res.status(200).json({
         status: "success",

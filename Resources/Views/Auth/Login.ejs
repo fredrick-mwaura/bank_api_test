@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
+    <h2 class="text-2xl font-bold mb-6 text-center">Register</h2>
+    <form action="/api/auth/login" method="POST" class="space-y-4">
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+        <input type="email" id="email" name="email" required class="mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+      <input type="hidden" name="pushToken" value=<%= pushToken %> />
+      <input type="hidden" name="deviceId" value=<%= getDeviceId() %>>
+      <!-- <div>
+        <label for="phonenumber" class="block text-sm font-medium text-gray-700">Phone Number</label>
+        <input type="tel" id="phonenumber" name="phoneNumber" required class="mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div> -->
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+        <input type="password" id="password" name="password" required class="mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-md font-semibold hover:bg-blue-700 transition">Register</button>
+    </form>
+  </div>
+  <script>
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-analytics.js";
+    import { messaging } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-messaging.js";
+  
+    const register = await navigator.serviceWorker.register('/sw.js')
+    const subscription = await register.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: "key hapo"
+    })
+    const pushToken = JSON.stringify(subscription)
+
+    //pushToken
+    let apiKey = process.env.FIREBASE_API_KEY
+    let vap = process.env.FIREBASE_VALIDKEY
+    const firebaseConfig = {
+      apiKey: apiKey,
+      authDomain: "messaging-702.firebase.com",
+      projectId: "messaging-702",
+      storageBucket: "messaging-702.firebasestorage.app",
+      messagingSenderId: "134922907791",
+      appId: "G-WMTYNCFL79"
+    }
+    //init
+    const app = intializeApp(firebaseConfig)
+    const analytics = getAnalytics(app)
+    const messaging = firebase.messaging()
+    //req perm
+    async function getDeviceId(){
+      try{
+        const permission = await Notification.requestPermission();
+        if(permission !== 'granted'){
+          throw new Error("permission not granted for notifications")
+        }
+        const currentToken = await messaging.getToken({
+          validKey: vap
+        })
+        return currentToken
+      }catch(err){
+        console.log("error in getting FMC token ", err)
+        return null
+      }
+    }
+  </script>
+</body>
+</html>
