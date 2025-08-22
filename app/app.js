@@ -73,7 +73,14 @@ app.set("views", "Resources/Views");
 app.set('trust proxy', 1)
 
 //security middleware
-app.use(helmet())
+// app.use(
+//   helmet.contentSecurityPolicy({
+//     directives: {
+//       defaultSrc: ["'self'"],
+//       scriptSrc: ["'self'", "'nonce-firebase_hehe"]
+//     }
+//   })
+// )
 // app.use(securityHeaders);
 app.use(cors({
   origin: config.cors.origin, //||fallback
@@ -99,6 +106,7 @@ app.use(mongoSanitize());
 app.use(compression())
 app.use(requestLogger);
 app.use('/api', rateLimiters.global);
+app.use(express.static('public'))
 
 //status
 app.get('/connection-health', (req, res)=> {

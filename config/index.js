@@ -17,7 +17,7 @@ export const config = {
 
   jwt: {
     secret: process.env.JWT_SECRET,
-    expiresIn: process.env.JWT_EXPIRES,
+    expiresIn: process.env.JWT_EXPIRES ?? '7d',
     refreshSecret: process.env.JWT_REFRESH_SECRET,
     issuer: process.env.JWT_ISSUER,
     audience: process.env.JWT_AUDIENCE

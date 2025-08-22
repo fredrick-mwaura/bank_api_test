@@ -14,6 +14,13 @@ router.get("/register", (req, res) => {
   })
 })
 
+router.get('/login', (req, res)=>{
+  res.render("Auth/Login.ejs",{
+    title: "login",
+    message: "login to access account info"
+  })
+})
+
 router.get(
   '/verify-email/:token',
   // ValidationMiddleware.validateObjectId("token"),
@@ -23,7 +30,7 @@ router.get(
 router.post("/register", authController.register) // ValidationMiddleware.validateRegistration(),
 
 router.post("/login", 
-  rateLimiters.auth, 
+  // rateLimiters.auth, 
   // ValidationMiddleware.validateLogin(), 
   authController.login)
 

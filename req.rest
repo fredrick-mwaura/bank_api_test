@@ -1,15 +1,24 @@
-POST http://localhost:5000/api/auth/register
+# POST http://localhost:5000/api/auth/register
+# Content-Type: application/json
+
+# {
+#   "userId": "U1001",
+#   "firstName": "fredrick",
+#   "lastName": "mwaura",
+#   "email": "freddy336m3@gmail.com",
+#   "password": "StrongPass123!",
+#   "confirm_password": "StrongPass123!",
+#   "snn": "123-45-6789",
+#   "dateOfBirth": "1995-06-15",
+#   "phoneNumber": "+254705776571",
+#   "accountType": "business"
+# }
+
+POST http://localhost:5000/api/auth/login
 Content-Type: application/json
 
 {
-  "userId": "U1001",
-  "firstName": "fredrick",
-  "lastName": "mwaura",
-  "email": "freddy336m3@gmail.com",
+  "email": "mwaurafredrick691@gmail.com",
   "password": "StrongPass123!",
-  "confirm_password": "StrongPass123!",
-  "snn": "123-45-6789",
-  "dateOfBirth": "1995-06-15",
-  "phoneNumber": "+254705776571",
-  "accountType": "business"
+  "rememberMe": false
 }

@@ -2,3 +2,5 @@
 node_modules/
 .req.rest
 Resources/log/*
+public/js/jquery.js
+serviceAccountKey.json

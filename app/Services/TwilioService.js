@@ -1,4 +1,4 @@
-import { Twilio } from "twilio";
+import Twilio from "twilio";
 import { config } from "../../config/index.js";
 
 const accountSid = config.twilio.acctId;

@@ -9,8 +9,6 @@ import {config} from "../../config/index.js"
 import { generateTokens, verifyRefreshToken } from "../utils/tokenUtils.js"
 import { encrypt } from "../helpers/encryption.js"
 import TwilioService from "../Services/TwilioService.js"
-import Device from "../Models/Device.js"
-import { sendPushNotification } from "../Services/firebase.js"
 import { deviceLogin } from "../Services/deviceService.js"
 
 class AuthController {
@@ -151,7 +149,9 @@ class AuthController {
 
   // User login
   async login(req, res) {
+    logger.info(req.body);
     try {
+
       const { email, password, deviceId, pushToken, rememberMe = false } = req.body
       const ipAddress = req.ip
       const userAgent = req.get("User-Agent")

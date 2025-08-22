@@ -2,7 +2,7 @@ import Device from "../Models/Device.js";
 import { sendPushNotification } from "./firebase.js";
 
 
-export const deviceLogin = async (UserDefinedMessageInstance, identifier, deviceId, pushToken, isFirstLogin = false) => {
+export const deviceLogin = async (userId, identifier, deviceId, pushToken, isFirstLogin = false) => {
   let device = await Device.findOne({userId, deviceId})
 
   if(!device){

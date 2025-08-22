@@ -1,5 +1,6 @@
 import mongoose from "mongoose"
 import mongoosePaginate from "mongoose-paginate-v2"
+import crypto from 'crypto'
 
 // Laravel-style RefreshToken model for session management
 const refreshTokenSchema = new mongoose.Schema(
@@ -184,12 +185,12 @@ refreshTokenSchema.virtual("sessionDuration").get(function () {
 refreshTokenSchema.pre("save", function (next) {
   // Generate session ID if not provided
   if (!this.sessionId && this.isNew) {
-    this.sessionId = require("crypto").randomBytes(16).toString("hex")
+    this.sessionId = crypto.randomBytes(16).toString("hex")
   }
 
   // Generate token family for rotation if not provided
   if (!this.tokenFamily && this.isNew) {
-    this.tokenFamily = require("crypto").randomBytes(8).toString("hex")
+    this.tokenFamily = crypto.randomBytes(8).toString("hex")
   }
 
   // Update status based on expiration

@@ -6,12 +6,6 @@ import { config } from './config/index.js'
 
 const port = config.app.port|| 5000
 
-//test env variables
-// let myEmail = config.mail.username ?? "";
-// let password = config.mail.password ?? ""
-// console.log(myEmail, password)
-
-
 try {
   await db.connectDB();
   console.info('Database connected');

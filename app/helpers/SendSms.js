@@ -1,4 +1,4 @@
-import { Twilio } from "twilio";
+import Twilio from "twilio";
 import { config } from "../../config/index.js";
 
 const client = Twilio(config.twilio.sid, config.twilio.authtoken)
