@@ -138,7 +138,7 @@ const firebaseConfig = {
             console.log('Login successful:');
           },
           error: function(xhr, status, error) {
-            errorText.textContent = error.message || 'Login failed. Please try again.';
+            errorText.textContent = error || 'Login failed. Please try again.';
             errorMessage.removeClass('hidden');
             console.error('error in login: ', error);
           }
@@ -163,7 +163,7 @@ const firebaseConfig = {
 
   // Register service worker
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/firebase-messaging-sw.js')
+    navigator.serviceWorker.register('/js/reg.js')
       .then((registration) => {
         console.log('Service Worker registered:', registration);
       })
