@@ -552,6 +552,7 @@ class AuthController {
   // Verify email
   async verifyEmail(req, res) {
     try {
+      console.log(req.params)
       const { token } = req.params
       console.log('token', token)
       if(!token){

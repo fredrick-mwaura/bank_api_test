@@ -1,13 +1,29 @@
-import Transaction from "../Models/Transaction.js"
-import Account from "../Models/Account.js"
-import User from "../Models/User.js"
-import transactionService from "../Services/transactionService.js"
-import notificationService from "../Services/notificationService.js"
-import auditService from "../Services/AuditService.js"
-import logger from "../utils/logger.js"
-import { generateTransactionId } from "../helpers/randString.js"
-import {config} from "../../config/index.js"
-import ScheduledTransaction from "../Models/ScheduledTransaction.js"
+// import Transaction from "../Models/Transaction.js"
+// import Account from "../Models/Account.js"
+// import User from "../Models/User.js"
+// import transactionService from "../Services/transactionService.js"
+// import notificationService from "../Services/notificationService.js"
+// import auditService from "../Services/AuditService.js"
+// import logger from "../utils/logger.js"
+// import { generateTransactionId } from "../helpers/randString.js"
+// import {config} from "../../config/index.js"
+// import ScheduledTransaction from "../Models/ScheduledTransaction.js"
+
+// Laravel-style transaction controller
+import Transaction from "../models/Transaction"
+import Account from "../models/Account"
+import User from "../models/User"
+import transactionService from "../services/transactionService"
+import notificationService from "../services/notificationService"
+import auditService from "../services/auditService"
+import logger from "../utils/logger"
+import { generateTransactionId } from "../utils/helpers"
+import ScheduledTransaction from "../models/ScheduledTransaction"
+import RecurringTransaction from "../models/RecurringTransaction"
+import ScheduledTransaction from "../models/ScheduledTransaction"
+import ScheduledTransaction from "../models/ScheduledTransaction"
+import RecurringTransaction from "../models/RecurringTransaction"
+import config from "../config"
 
 // Laravel-style transaction controller
 class TransactionController {
@@ -720,7 +736,6 @@ class TransactionController {
     try {
       const userId = req.user._id
       const { page = 1, limit = 20, status = "active" } = req.query
-
       const options = {
         page: Number.parseInt(page),
         limit: Number.parseInt(limit),
@@ -806,7 +821,6 @@ class TransactionController {
       const { id } = req.params
       const userId = req.user._id
       const updates = req.body
-
       const scheduledTransaction = await ScheduledTransaction.findOne({
         _id: id,
         userId,
@@ -871,65 +885,531 @@ class TransactionController {
     }
   }
 
-  // Get transaction analytics
-  async getTransactionSummary(req, res) {
+  // Get recurring transactions
+  async getRecurringTransactions(req, res) {
     try {
       const userId = req.user._id
-      const { period = "30d", accountId } = req.query
+      const { page = 1, limit = 20, status = "active" } = req.query
+      const options = {
+        page: Number.parseInt(page),
+        limit: Number.parseInt(limit),
+        sort: { nextExecutionDate: 1 },
+        populate: [
+          { path: "fromAccount", select: "accountNumber accountType balance" },
+          { path: "toAccount", select: "accountNumber accountType" },
+          { path: "billPayment.payeeId", select: "name accountNumber" },
+        ],
+      }
 
-      const summary = await transactionService.getTransactionAnalytics(userId, period, accountId)
+      const result = await RecurringTransaction.paginate({ userId, status }, options)
 
       res.status(200).json({
         status: "success",
-        data: { summary },
+        data: {
+          recurringTransactions: result.docs,
+          pagination: {
+            currentPage: result.page,
+            totalPages: result.totalPages,
+            totalItems: result.totalDocs,
+            itemsPerPage: result.limit,
+            hasNextPage: result.hasNextPage,
+            hasPrevPage: result.hasPrevPage,
+          },
+        },
       })
     } catch (error) {
-      logger.error("Transaction summary error:", error)
+      logger.error("Error fetching recurring transactions:", error)
       res.status(500).json({
         status: "error",
-        message: "Failed to get transaction summary",
+        message: "Failed to fetch recurring transactions",
       })
     }
   }
 
-  // Get spending analytics
-  async getSpendingAnalytics(req, res) {
+  // Create recurring transaction
+  async createRecurringTransaction(req, res) {
     try {
+      const {
+        fromAccountId,
+        toAccountId,
+        amount,
+        description,
+        frequency,
+        startDate,
+        endDate,
+        transactionType,
+        indefinite = false,
+        category = "other",
+        billPayment,
+        externalRecipient,
+        notifications = {
+          beforeExecution: { enabled: false },
+          afterExecution: { enabled: true, onSuccess: true, onFailure: true },
+        },
+      } = req.body
       const userId = req.user._id
-      const { period = "30d", groupBy = "category" } = req.query
 
-      const analytics = await transactionService.getSpendingAnalytics(userId, period, groupBy)
+      // Validate from account exists and user has access
+      const fromAccount = await Account.findOne({ _id: fromAccountId, userId })
+      if (!fromAccount) {
+        return res.status(404).json({
+          status: "error",
+          message: "From account not found",
+        })
+      }
 
-      res.status(200).json({
+      if (fromAccount.status !== "active") {
+        return res.status(400).json({
+          status: "error",
+          message: "Account must be active for recurring transactions",
+        })
+      }
+
+      // Validate to account if internal transfer
+      let toAccount = null
+      if (toAccountId && transactionType === "transfer") {
+        toAccount = await Account.findById(toAccountId)
+        if (!toAccount) {
+          return res.status(404).json({
+            status: "error",
+            message: "To account not found",
+          })
+        }
+      }
+
+      // Validate start date
+      const startDateTime = new Date(startDate)
+      if (startDateTime <= new Date()) {
+        return res.status(400).json({
+          status: "error",
+          message: "Start date must be in the future",
+        })
+      }
+
+      // Calculate next execution date
+      const nextExecutionDate = transactionService.calculateNextExecutionDate(startDateTime, frequency)
+      // Create recurring transaction
+      const recurringTransaction = new RecurringTransaction({
+        userId,
+        transactionType,
+        amount: Number.parseFloat(amount),
+        description,
+        category,
+        frequency,
+        startDate: startDateTime,
+        endDate: endDate ? new Date(endDate) : null,
+        nextExecutionDate,
+        fromAccount: fromAccountId,
+        toAccount: toAccountId,
+        indefinite,
+        billPayment,
+        externalRecipient,
+        notifications,
+        createdBy: userId,
+      })
+
+      await recurringTransaction.save()
+
+      // Log the creation
+      await auditService.logActivity({
+        userId,
+        action: "recurring_transaction_created",
+        resource: "recurring_transaction",
+        resourceId: recurringTransaction._id,
+        metadata: {
+          transactionType,
+          amount,
+          frequency,
+          startDate: startDateTime,
+        },
+      })
+
+      res.status(201).json({
         status: "success",
-        data: { analytics },
+        message: "Recurring transaction created successfully",
+        data: { recurringTransaction },
       })
     } catch (error) {
-      logger.error("Spending analytics error:", error)
+      logger.error("Create recurring transaction error:", error)
       res.status(500).json({
         status: "error",
-        message: "Failed to get spending analytics",
+        message: error.message || "Failed to create recurring transaction",
       })
     }
   }
 
-  // Get category analytics
-  async getCategoryAnalytics(req, res) {
+  // Update recurring transaction
+  async updateRecurringTransaction(req, res) {
     try {
+      const { id } = req.params
       const userId = req.user._id
-      const { period = "30d" } = req.query
+      const updates = req.body
+      const recurringTransaction = await RecurringTransaction.findOne({
+        _id: id,
+        userId,
+      })
 
-      const categoryData = await transactionService.getCategoryAnalytics(userId, period)
+      if (!recurringTransaction) {
+        return res.status(404).json({
+          status: "error",
+          message: "Recurring transaction not found",
+        })
+      }
+
+      // Don't allow updates to completed or cancelled transactions
+      if (["completed", "cancelled"].includes(recurringTransaction.status)) {
+        return res.status(400).json({
+          status: "error",
+          message: "Cannot update completed or cancelled recurring transactions",
+        })
+      }
+
+      // Store original values for audit
+      const originalValues = {
+        amount: recurringTransaction.amount,
+        frequency: recurringTransaction.frequency,
+        status: recurringTransaction.status,
+      }
+
+      // Update allowed fields
+      const allowedUpdates = ["amount", "description", "frequency", "endDate", "status", "indefinite", "notifications"]
+
+      allowedUpdates.forEach((field) => {
+        if (updates[field] !== undefined) {
+          recurringTransaction[field] = updates[field]
+        }
+      })
+
+      // Recalculate next execution date if frequency changed
+      if (updates.frequency && updates.frequency !== originalValues.frequency) {
+        recurringTransaction.nextExecutionDate = transactionService.calculateNextExecutionDate(
+          recurringTransaction.lastExecutionDate || recurringTransaction.startDate,
+          updates.frequency,
+        )
+      }
+
+      recurringTransaction.updatedBy = userId
+      await recurringTransaction.save()
+
+      // Log the update
+      await auditService.logActivity({
+        userId,
+        action: "recurring_transaction_updated",
+        resource: "recurring_transaction",
+        resourceId: recurringTransaction._id,
+        metadata: {
+          originalValues,
+          newValues: updates,
+        },
+      })
 
       res.status(200).json({
         status: "success",
-        data: { categoryData },
+        message: "Recurring transaction updated successfully",
+        data: { recurringTransaction },
       })
     } catch (error) {
-      logger.error("Category analytics error:", error)
+      logger.error("Update recurring transaction error:", error)
       res.status(500).json({
         status: "error",
-        message: "Failed to get category analytics",
+        message: "Failed to update recurring transaction",
+      })
+    }
+  }
+
+  // Cancel recurring transaction
+  async cancelRecurringTransaction(req, res) {
+    try {
+      const { id } = req.params
+      const userId = req.user._id
+      const { reason } = req.body
+
+
+      const recurringTransaction = await RecurringTransaction.findOne({
+        _id: id,
+        userId,
+      })
+
+      if (!recurringTransaction) {
+        return res.status(404).json({
+          status: "error",
+          message: "Recurring transaction not found",
+        })
+      }
+
+      if (recurringTransaction.status === "cancelled") {
+        return res.status(400).json({
+          status: "error",
+          message: "Recurring transaction is already cancelled",
+        })
+      }
+
+      recurringTransaction.status = "cancelled"
+      recurringTransaction.cancelledAt = new Date()
+      recurringTransaction.cancelReason = reason || "Cancelled by user"
+      recurringTransaction.updatedBy = userId
+
+      await recurringTransaction.save()
+
+      // Log the cancellation
+      await auditService.logActivity({
+        userId,
+        action: "recurring_transaction_cancelled",
+        resource: "recurring_transaction",
+        resourceId: recurringTransaction._id,
+        metadata: {
+          reason: reason || "Cancelled by user",
+          executionCount: recurringTransaction.executionCount,
+          totalAmount: recurringTransaction.amount * recurringTransaction.executionCount,
+        },
+      })
+
+      res.status(200).json({
+        status: "success",
+        message: "Recurring transaction cancelled successfully",
+      })
+    } catch (error) {
+      logger.error("Cancel recurring transaction error:", error)
+      res.status(500).json({
+        status: "error",
+        message: "Failed to cancel recurring transaction",
+      })
+    }
+  }
+
+  // Pause recurring transaction
+  async pauseRecurringTransaction(req, res) {
+    try {
+      const { id } = req.params
+      const userId = req.user._id
+      const { reason } = req.body
+
+      const recurringTransaction = await RecurringTransaction.findOne({
+        _id: id,
+        userId,
+      })
+
+      if (!recurringTransaction) {
+        return res.status(404).json({
+          status: "error",
+          message: "Recurring transaction not found",
+        })
+      }
+
+      if (recurringTransaction.status !== "active") {
+        return res.status(400).json({
+          status: "error",
+          message: "Can only pause active recurring transactions",
+        })
+      }
+
+      recurringTransaction.status = "paused"
+      recurringTransaction.pausedAt = new Date()
+      recurringTransaction.pauseReason = reason || "Paused by user"
+      recurringTransaction.updatedBy = userId
+
+      await recurringTransaction.save()
+
+      // Log the pause
+      await auditService.logActivity({
+        userId,
+        action: "recurring_transaction_paused",
+        resource: "recurring_transaction",
+        resourceId: recurringTransaction._id,
+        metadata: {
+          reason: reason || "Paused by user",
+        },
+      })
+
+      res.status(200).json({
+        status: "success",
+        message: "Recurring transaction paused successfully",
+      })
+    } catch (error) {
+      logger.error("Pause recurring transaction error:", error)
+      res.status(500).json({
+        status: "error",
+        message: "Failed to pause recurring transaction",
+      })
+    }
+  }
+
+  // Resume recurring transaction
+  async resumeRecurringTransaction(req, res) {
+    try {
+      const { id } = req.params
+      const userId = req.user._id
+
+
+      const recurringTransaction = await RecurringTransaction.findOne({
+        _id: id,
+        userId,
+      })
+
+      if (!recurringTransaction) {
+        return res.status(404).json({
+          status: "error",
+          message: "Recurring transaction not found",
+        })
+      }
+
+      if (recurringTransaction.status !== "paused") {
+        return res.status(400).json({
+          status: "error",
+          message: "Can only resume paused recurring transactions",
+        })
+      }
+
+      recurringTransaction.status = "active"
+      recurringTransaction.resumedAt = new Date()
+      recurringTransaction.pauseReason = null
+      recurringTransaction.pausedAt = null
+
+      // Recalculate next execution date
+      recurringTransaction.nextExecutionDate = transactionService.calculateNextExecutionDate(
+        recurringTransaction.lastExecutionDate || recurringTransaction.startDate,
+        recurringTransaction.frequency,
+      )
+
+      recurringTransaction.updatedBy = userId
+      await recurringTransaction.save()
+
+      // Log the resume
+      await auditService.logActivity({
+        userId,
+        action: "recurring_transaction_resumed",
+        resource: "recurring_transaction",
+        resourceId: recurringTransaction._id,
+        metadata: {
+          nextExecutionDate: recurringTransaction.nextExecutionDate,
+        },
+      })
+
+      res.status(200).json({
+        status: "success",
+        message: "Recurring transaction resumed successfully",
+        data: {
+          nextExecutionDate: recurringTransaction.nextExecutionDate,
+        },
+      })
+    } catch (error) {
+      logger.error("Resume recurring transaction error:", error)
+      res.status(500).json({
+        status: "error",
+        message: "Failed to resume recurring transaction",
+      })
+    }
+  }
+
+  // Get recurring transaction execution history
+  async getRecurringTransactionHistory(req, res) {
+    try {
+      const { id } = req.params
+      const userId = req.user._id
+      const { page = 1, limit = 20 } = req.query
+
+
+      const recurringTransaction = await RecurringTransaction.findOne({
+        _id: id,
+        userId,
+      })
+
+      if (!recurringTransaction) {
+        return res.status(404).json({
+          status: "error",
+          message: "Recurring transaction not found",
+        })
+      }
+
+      // Get execution history with pagination
+      const skip = (Number.parseInt(page) - 1) * Number.parseInt(limit)
+      const executionHistory = recurringTransaction.executionHistory
+        .sort((a, b) => new Date(b.executedAt) - new Date(a.executedAt))
+        .slice(skip, skip + Number.parseInt(limit))
+
+      const totalExecutions = recurringTransaction.executionHistory.length
+      const totalPages = Math.ceil(totalExecutions / Number.parseInt(limit))
+
+      // Get related transactions
+      const transactionIds = executionHistory.filter((exec) => exec.transactionId).map((exec) => exec.transactionId)
+
+      const transactions = await Transaction.find({
+        _id: { $in: transactionIds },
+      }).populate("fromAccount toAccount", "accountNumber accountType")
+
+      res.status(200).json({
+        status: "success",
+        data: {
+          recurringTransaction: {
+            _id: recurringTransaction._id,
+            description: recurringTransaction.description,
+            amount: recurringTransaction.amount,
+            frequency: recurringTransaction.frequency,
+            status: recurringTransaction.status,
+            executionCount: recurringTransaction.executionCount,
+            totalAmount: recurringTransaction.amount * recurringTransaction.executionCount,
+          },
+          executionHistory,
+          transactions,
+          pagination: {
+            currentPage: Number.parseInt(page),
+            totalPages,
+            totalItems: totalExecutions,
+            itemsPerPage: Number.parseInt(limit),
+            hasNextPage: Number.parseInt(page) < totalPages,
+            hasPrevPage: Number.parseInt(page) > 1,
+          },
+        },
+      })
+    } catch (error) {
+      logger.error("Get recurring transaction history error:", error)
+      res.status(500).json({
+        status: "error",
+        message: "Failed to get recurring transaction history",
+      })
+    }
+  }
+
+  // Get upcoming recurring transactions
+  async getUpcomingRecurringTransactions(req, res) {
+    try {
+      const userId = req.user._id
+      const { days = 7 } = req.query
+
+      const endDate = new Date()
+      endDate.setDate(endDate.getDate() + Number.parseInt(days))
+
+      const upcomingTransactions = await RecurringTransaction.find({
+        userId,
+        status: "active",
+        nextExecutionDate: { $lte: endDate },
+      })
+        .populate("fromAccount", "accountNumber accountType balance")
+        .populate("toAccount", "accountNumber accountType")
+        .sort({ nextExecutionDate: 1 })
+        .limit(50)
+
+      // Calculate total upcoming amount
+      const totalUpcomingAmount = upcomingTransactions.reduce((sum, transaction) => {
+        return sum + transaction.amount
+      }, 0)
+
+      res.status(200).json({
+        status: "success",
+        data: {
+          upcomingTransactions,
+          summary: {
+            count: upcomingTransactions.length,
+            totalAmount: totalUpcomingAmount,
+            period: `${days} days`,
+          },
+        },
+      })
+    } catch (error) {
+      logger.error("Get upcoming recurring transactions error:", error)
+      res.status(500).json({
+        status: "error",
+        message: "Failed to get upcoming recurring transactions",
       })
     }
   }
@@ -1022,4 +1502,6 @@ class TransactionController {
   }
 }
 
-export default TransactionController
+const transactionController = new TransactionController()
+
+export default transactionController

@@ -29,12 +29,12 @@ Accept: application/json
 **Example Request:**
 \`\`\`json
 {
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john.doe@example.com",
-  "password": "SecurePass123!",
+  "firstName": "fredrick",
+  "lastName": "mwaura",
+  "email": "fredrick.mwaurae@example.com",
+  "password": "password",
   "phoneNumber": "+1234567890",
-  "dateOfBirth": "1990-05-15",
+  "dateOfBirth": "2000-05-15",
   "ssn": "123-45-6789"
 }
 \`\`\`
@@ -50,9 +50,9 @@ Accept: application/json
   "data": {
     "user": {
       "id": "60f7b3b3b3b3b3b3b3b3b3b3",
-      "firstName": "John",
-      "lastName": "Doe",
-      "email": "john.doe@example.com",
+      "firstName": "fredrick",
+      "lastName": "mwaura",
+      "email": "fredrick.mwaura@example.com",
       "isEmailVerified": false
     }
   }

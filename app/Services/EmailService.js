@@ -141,7 +141,7 @@ class EmailService {
 
   // Send verification email
   async sendVerificationEmail(email, token) {
-    const verificationUrl = `${config.app.url}/api/auth/verify-email?token=${token}`
+    const verificationUrl = `${config.app.url}/api/auth/verify-email/token=${token}`
 
     return this.sendTemplateEmail(email, "Verify Your Email Address", "email-verification", {
       verificationUrl,
@@ -160,7 +160,7 @@ class EmailService {
 
   // Send password reset email
   async sendPasswordResetEmail(email, token) {
-    const resetUrl = `${config.app.url}/reset-password?token=${token}`
+    const resetUrl = `${config.app.url}/reset-password/token=${token}`
 
     return this.sendTemplateEmail(email, "Reset Your Password", "password-reset", {
       resetUrl,

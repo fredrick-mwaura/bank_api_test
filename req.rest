@@ -14,11 +14,11 @@
 #   "accountType": "business"
 # }
 
-POST http://localhost:5000/api/auth/login
-Content-Type: application/json
+GET http://localhost:5000/api/transactions
+# Content-Type: application/json
 
-{
-  "email": "mwaurafredrick691@gmail.com",
-  "password": "StrongPass123!",
-  "rememberMe": false
-}
+# {
+#   "email": "mwaurafredrick691@gmail.com",
+#   "password": "StrongPass123!",
+#   "rememberMe": false
+# }

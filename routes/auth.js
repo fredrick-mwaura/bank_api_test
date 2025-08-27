@@ -29,9 +29,8 @@ router.get(
 // Public routes (no authentication required)
 router.post("/register", authController.register) // ValidationMiddleware.validateRegistration(),
 
-router.post("/login", 
-  // rateLimiters.auth, 
-  // ValidationMiddleware.validateLogin(), 
+router.post("/login",
+  rateLimiters.auth, 
   authController.login)
 
 router.post(

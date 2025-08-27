@@ -9,7 +9,7 @@ import { rateLimiters } from './Middleware/RateLimiter.js'
 import authRoutes from '../routes/auth.js'
 import userRoutes from '../routes/users.js'
 // import accountRoutes from '../routes/account.js'
-// import transactionRoutes from '../routes/transaction.js'
+import transactionRoutes from '../routes/transaction.js'
 import { requestLogger } from './Middleware/RequestLogger.js'
 import { config } from '../config/index.js'
 
@@ -128,7 +128,7 @@ app.get('/connection-health', (req, res)=> {
 app.use('/api/auth', authRoutes)
 app.use('/api/users', userRoutes)
 // app.use('/api/accounts', accountRoutes);
-// app.use('/api/transactions', transactionRoutes)
+app.use('/api/transactions', transactionRoutes)
 app.use('auth', authRoutes)
 
 //handle 404
