@@ -1,16 +1,11 @@
 import mongoose from 'mongoose'
 import bcrypt from 'bcryptjs'
-import dotenv from 'dotenv'
 import User from '../../app/Models/User.js'
-
-dotenv.config() //manage env variables
+import db from '../../config/database.js'
 
 const UserSeeder = async () => {
   try{
-    await mongoose.connect(process.env.MONGODB_URI)
-
-    // ---delete existing users
-    // await User.deleteMany(); 
+    await db.connectDB()
 
     const hashedPassword = await bcrypt.hash("testuser", 10)
 

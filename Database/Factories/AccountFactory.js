@@ -1,16 +1,14 @@
-import mongoose from "mongoose";
-import dotenv from "dotenv";
 import { faker } from "@faker-js/faker";
 import Account from "../../app/Models/Account.js";
 import User from "../../app/Models/User.js";
+import db from "../../config/database.js";
 
-dotenv.config();
 
 const seedAccounts = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
+    await db.connectDB()
 
-    // await Account.deleteMany();
+    await Account.deleteMany();
 
     const users = await User.find();
     if (users.length === 0) {

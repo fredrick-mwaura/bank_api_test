@@ -1,17 +1,17 @@
 import mongoose from 'mongoose'
 import bcrypt from 'bcryptjs'
-import dotenv from 'dotenv'
 import User from '../../app/Models/User.js'
 import {faker} from '@faker-js/faker';
+import db from
 
 dotenv.config() //manage env variables
 
 const UserFactory = async () => {
   try{
-    await mongoose.connect(process.env.MONGODB_URI)
 
-    // ---delete existing user
-    // await User.deleteMany(); 
+    await db.connectDB()
+
+    await User.deleteMany(); 
 
     const hashedPassword = await bcrypt.hash("testuser", 10)
 

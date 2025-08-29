@@ -1,8 +1,10 @@
 import mongoose from "mongoose";
 import Admin from "../../app/Models/Admin.js";
+import db from "../../config/database.js";
 
 async function seedAdmins() {
-  await mongoose.connect("mongodb://localhost:27017/banking_api");
+
+  await db.connectDB()
 
   await Admin.deleteMany({});
   console.log("existing admins cleared");

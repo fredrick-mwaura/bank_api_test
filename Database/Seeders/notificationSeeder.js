@@ -1,14 +1,11 @@
 import mongoose from "mongoose";
 import Notification from "../../app/Models/Notification.js";
-import dotenv from 'dotenv'
-
-dotenv.config()
+import db from "../../config/database.js";
 
 const NotificationSeeder = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI)
-    // const users = User.aggregate([{ $limit: 3 } ])
-    // console.log(users)
+    await db.connectDB()
+
     const users = [
       new mongoose.Types.ObjectId(),
       new mongoose.Types.ObjectId(),

@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 import AdminLog from "../../app/Models/AdminLogs.js";
+import db from "../../config/database.js";
 
 async function seedAdminLogs() {
-  await mongoose.connect("mongodb://localhost:27017/banking_api");
 
-  // Clear existing logs
+  db.connectDB()
   await AdminLog.deleteMany({});
   console.log("existing admin logs cleared");
 

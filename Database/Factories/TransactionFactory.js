@@ -1,16 +1,15 @@
 import mongoose from 'mongoose'
-import dotenv from 'dotenv'
 import Transaction from '../../app/Models/Transaction.js'
 import Account from '../../app/Models/Account.js'
 import {faker} from '@faker-js/faker';
+import db from '../../config/database.js'
 
-dotenv.config();
 
 const TransactionFactory = async () => {
   try{
-    await mongoose.connect(process.env.MONGODB_URI)
+    await db.connectDB()
 
-    await Transaction.deleteMany()
+    await Transaction.deleteMany({})
 
     let accounts = await Account.find()
     if(accounts.length < 1){
@@ -21,7 +20,6 @@ const TransactionFactory = async () => {
       const fromAcc = faker.helpers.arrayElement(accounts);
       let toAcc = null;
 
-      // Only assign `toAccount` for transfers & payments      
       const type = faker.helpers.arrayElement([
         "deposit",
         "withdrawal",
