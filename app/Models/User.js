@@ -90,6 +90,10 @@ const userSchema = new mongoose.Schema({
   dailyTransactionLimit: {
     type: Number,
     default: 500000,
+  },
+  role: {
+    type: String,
+    enum: 'user',
   }
 },
 {

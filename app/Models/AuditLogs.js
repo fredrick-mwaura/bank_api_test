@@ -93,7 +93,7 @@ const auditLogSchema = new mongoose.Schema(
     },
 
     responseStatus: {
-      type: Number,
+      type: Number, //code
     },
 
     processingTime: {
@@ -101,7 +101,7 @@ const auditLogSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: false, // We use our own timestamp field
+    timestamps: true,
     collection: "audit_logs",
   },
 )

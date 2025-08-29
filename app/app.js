@@ -3,7 +3,6 @@ import cors from 'cors'
 import helmet from 'helmet'
 import mongoSanitize from 'express-mongo-sanitize'
 import compression from 'compression'
-import dotenv from 'dotenv'
 import {errorHandler} from './Middleware/ErrorHandler.js'
 import { rateLimiters } from './Middleware/RateLimiter.js'
 import authRoutes from '../routes/auth.js'
@@ -15,8 +14,9 @@ import { config } from '../config/index.js'
 
 const app = express()
 
-dotenv.config();
+app.use(helmet())
 
+// A helper to catch route definition errors
 function wrapMethod(app, method) {
   const orig = app[method].bind(app);
 
@@ -109,18 +109,17 @@ app.use('/api', rateLimiters.global);
 app.use(express.static('public'))
 
 //status
-app.get('/connection-health', (req, res)=> {
-  if(req.method !== "GET") return
-  console.log(config.jwt.expiresIn)
-  console.log('allllo', config.security.encryptionKey.length)
+app.get('/', (req, res)=> {
+  if(req.method !== "GET") return res.status(405).json({
+    status: "error",
+    message: "Method not allowed"
+  })
 
   res.status(200).json({
     status: 'success',
-    message: 'API running',
-    len: config.security.encryptionKey.length,
-    iss: config.jwt.issuer,
+    message: 'APP is running',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'dev'
+    environment: config.app.env || 'dev'
   });
 });
 
@@ -129,7 +128,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/users', userRoutes)
 // app.use('/api/accounts', accountRoutes);
 app.use('/api/transactions', transactionRoutes)
-app.use('auth', authRoutes)
+// app.use('auth', authRoutes)
 
 //handle 404
 
@@ -139,19 +138,6 @@ app.use((req, res) => {
     message: `Route ${req.originalUrl} not found`
   });
 });
-
-// app.use((req, res, next) => {
-//   let _query = req.query;
-//   Object.defineProperty(req, "query", {
-//     get: () => _query,
-//     set: (val) => {
-//       console.trace("⚠️ req.query was reassigned:", val);
-//       throw new Error("Do not assign req.query directly");
-//     },
-//     configurable: true
-//   });
-//   next();
-// });
 
 
 //exceptions

@@ -84,7 +84,62 @@ class AuthMiddleware{
     }
   } 
   //role based authentication
-}
+  static authorize (permissions = []) {
+    // roles param can be a single role string (e.g. 'user') 
+    // or an array of roles (e.g. ['admin', 'user'])
+    if (typeof permissions === 'string') {
+      permissions = [permissions];
+    }
 
+    const roles = permissions;
+    return (req, res, next) => {
+      if(!req.user){
+        return res.status(404).json({
+          status: 'error',
+          message: "login first"
+        })
+      }
+      if(!roles.includes(req.user.role)){
+        return res.status(403).json({
+          status: 'error',
+          message: "You are not authorized to access this resources."
+        })
+      }
+      next()
+    }
+  }
+  // admin => users only
+  static admin(req, res, next){
+    if(!req.user){
+      return res.status(401).json({
+        status: "error",
+        message: "Login first"
+      })
+    }
+    if(req.user.role !== "admin"){
+      return res.status(403).json({
+        status: "error",
+        message: "you're unauthorized to access."
+      })
+    }
+    next()
+  }
+//all routes must be 1 logged in.
+  static superAdmin(req, res, next){
+    if(!req.user){
+      return res.status(401).json({
+        status: "error",
+        message: "Login first"
+      })
+    }
+    if(req.user.role !== "superadmin"){
+      return res.status(403).json({
+        status: "error",
+        message: "you're unauthorized to access."
+      })
+    }
+    next()
+  }
+}
 
 export default AuthMiddleware;
