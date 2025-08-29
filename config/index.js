@@ -1,4 +1,4 @@
-import databaseConfig from './database.js'
+// import databaseConfig from './database.js'
 import dotenv from 'dotenv'
 
 dotenv.config();
@@ -13,7 +13,7 @@ export const config = {
     port: parseInt(process.env.PORT),
     timezone: process.env.TIMEZONE
   },
-  database: databaseConfig,
+  // database: databaseConfig,
 
   jwt: {
     secret: process.env.JWT_SECRET,
@@ -100,6 +100,10 @@ export const config = {
     authtoken: process.env.TWILIO_AUTH_TOKEN,
     acctId: process.env.TWILIO_ACCOUNT_ID,
     phone: process.env.TWILIO_PHONE
+  },
+  privates: {
+    ipstack_url: process.env.IPSTACK_URL,
+    ipstack: process.env.IPSTACK_API_KEY,
   }
 };
 // console.log("JWT_SECRET from env:", config.jwt.secret);

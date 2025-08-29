@@ -156,7 +156,6 @@ class AuthController {
       const ipAddress = req.ip
       const userAgent = req.get("User-Agent")
 
-      // Find user by email
       const user = await User.findOne({
         email: email.toLowerCase(),
       }).select("+password +loginAttempts +lockUntil")
@@ -170,7 +169,7 @@ class AuthController {
           resource: "auth",
           metadata: {
             email,
-            reason: "user_not_found",
+            reason: "user not found",
           },
           ipAddress,
           userAgent,

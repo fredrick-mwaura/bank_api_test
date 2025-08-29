@@ -230,8 +230,8 @@ class EmailService {
       limit_exceeded: "Transaction Limit Exceeded",
     }
 
-    const templateName = templates[type] || "account-generic"
-    const subject = subjects[type] || "Account Notification"
+    const templateName = type ? templates[type] || type : "system Alert"
+    const subject = type ? subjects[type] || type : "Account Notification"
 
     return this.sendTemplateEmail(email, subject, templateName, {
       accountNumber: this.maskAccountNumber(accountNumber),
@@ -242,9 +242,12 @@ class EmailService {
 
   // Send security alert
   async sendSecurityAlert(email, alertData) {
-    const { type, ipAddress, location, timestamp, action } = alertData
+    const { type, ipAddress, location, timestamp, action, subject } = alertData
 
-    const templates = {
+    const Issues = {
+      Admin_Account_Creation_Attempt: "security-admin-account-creation",
+      new_login: "security-new-login",
+      failed_login: "security-failed-login",
       login_from_new_device: "security-new-device",
       login_from_new_location: "security-new-location",
       password_changed: "security-password-changed",
@@ -252,18 +255,9 @@ class EmailService {
       account_locked: "security-account-locked",
     }
 
-    const subjects = {
-      login_from_new_device: "New Device Login Detected",
-      login_from_new_location: "New Location Login Detected",
-      password_changed: "Password Changed",
-      suspicious_activity: "Suspicious Activity Detected",
-      account_locked: "Account Temporarily Locked",
-    }
+    const consern = Issues[type] || "security alert"
 
-    const templateName = templates[type] || "security-generic"
-    const subject = subjects[type] || "Security Alert"
-
-    return this.sendTemplateEmail(email, subject, templateName, {
+    return this.sendTemplateEmail(email, subject, consern, {
       ipAddress,
       location,
       timestamp: this.formatDate(timestamp),

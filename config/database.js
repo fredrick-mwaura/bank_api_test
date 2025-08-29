@@ -33,7 +33,7 @@ class DatabaseConfig {
       },
       
       test: {
-        uri: process.env.MONGODB_TEST_URI || 'mongodb://localhost:27017/banking_api',
+        uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/banking_api',
         options: {
           // useNewUrlParser: true,
           // useUnifiedTopology: true,
@@ -209,10 +209,7 @@ class DatabaseConfig {
       
       return {
         status: 'connected',
-        message: 'Database connection is healthy',
         database: mongoose.connection.name,
-        host: this.maskConnectionString(this.getCurrentConfig().uri),
-        readyState: mongoose.connection.readyState,
         collections: await this.getCollectionStats()
       };
     } catch (error) {
@@ -253,7 +250,7 @@ class DatabaseConfig {
     if (!uri) return 'N/A';
     
     // Replace password with asterisks
-    return uri.replace(/:([^:@]+)@/, ':***@');
+    return uri.replace(/:([^:@]+)@/, ':****@');
   }
 
   // Create database indexes (Laravel-style migrations)
@@ -347,86 +344,6 @@ class DatabaseConfig {
     }
   }
 
-  // Drop database (for testing purposes)
-  async dropDatabase() {
-    try {
-      if (process.env.NODE_ENV === 'production') {
-        throw new Error('Cannot drop database in production environment');
-      }
-
-      await mongoose.connection.dropDatabase();
-      logger.info('Database dropped successfully');
-    } catch (error) {
-      logger.error('Error dropping database:', error);
-      throw error;
-    }
-  }
-
-  // Get connection status
-  getConnectionStatus() {
-    const states = {
-      0: 'disconnected',
-      1: 'connected',
-      2: 'connecting',
-      3: 'disconnecting'
-    };
-
-    return {
-      isConnected: this.isConnected,
-      readyState: mongoose.connection.readyState,
-      status: states[mongoose.connection.readyState] || 'unknown',
-      host: this.maskConnectionString(this.getCurrentConfig().uri),
-      database: mongoose.connection.name
-    };
-  }
-
-  // Seed database with initial data (Laravel-style seeding)
-  async seedDatabase() {
-    try {
-      if (process.env.NODE_ENV === 'production') {
-        logger.warn('Skipping database seeding in production environment');
-        return;
-      }
-
-      logger.info('Seeding database with initial data...');
-
-      // Check if data already exists
-      const existingUsers = await User.countDocuments();
-
-      if (existingUsers > 0) {
-        logger.info('Database already contains data, skipping seeding');
-        return;
-      }
-
-      // Create admin user
-      const adminPassword = await bcrypt.hash('Admin123!', 12);
-
-      await User.create({
-        firstName: 'Admin',
-        lastName: 'User',
-        email: 'admin@bankingapi.com',
-        password: adminPassword,
-        phoneNumber: '+1234567890',
-        dateOfBirth: new Date('1990-01-01'),
-        snn: '123-45-6789',
-        role: 'admin',
-        status: 'active',
-        isEmailVerified: true,
-        address: {
-          street: '123 Admin St',
-          city: 'Admin City',
-          state: 'AC',
-          zipCode: '12345',
-          country: 'USA'
-        }
-      });
-
-      logger.info('Database seeded successfully');
-    } catch (error) {
-      logger.error('Error seeding database:', error);
-      throw error;
-    }
-  }
 }
 
 // Create singleton instance
@@ -438,6 +355,7 @@ const connectDB = async () => {
 };
 
 export default {
+  databaseConfig,
   connectDB,
   disconnect: () => databaseConfig.disconnect(),
   healthCheck: () => databaseConfig.healthCheck(),
@@ -447,5 +365,5 @@ export default {
   seedDatabase: () => databaseConfig.seedDatabase(),
 
   // Export the instance for advanced usage
-  instance: databaseConfig
+  // instance: databaseConfig
 };
