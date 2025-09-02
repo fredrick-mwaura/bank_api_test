@@ -1,27 +1,50 @@
 import express from 'express';
-import adminController from '../app/controllers/adminController.js';
-import * as AuthMiddleware from '../app/middleware/Auth.js';
-import * as ValidationMiddleware from '../app/middleware/Validation.js';
+import adminController from '../app/controllers/api/AdminsController.js';
+import * as AuthMiddleware from '../app/Middleware/AuthMiddleware.js';
+// import * as ValidationMiddleware from '../app/Middleware/Validation.js';
+// import { ValidationMiddleware } from "../app/Middleware/Validation.js";
 
 const router = express.Router()
 
+router.post('/login', adminController.Login);
+
+router.post('/register', 
+  //  ValidationMiddleware.default.validateAdminRegistration,
+   adminController.Register);
+
+router.get("/admin_login", (req, res)=>{
+  res.render("Admin/login.ejs",{
+    title: "admin login",
+    message: "login to access admin dashboard"
+  });
+});
+
+router.get("/admin_register", (req, res)=>{
+  res.render("Admin/Register.ejs",{
+    title: "admin register",
+    message: "register to access admin dashboard"
+  })
+})
+
 // All admin routes require admin authentication
-router.use(AuthMiddleware.authenticate);
-router.use(AuthMiddleware.authorize('admin'));
+router.use(AuthMiddleware.default.authorize(['admin']));
+// router.use(AuthMiddleware.authorize('admin'));
+
 
 // Dashboard and overview
-router.get('/dashboard', adminController.getDashboard);
-router.get('/stats/overview', adminController.getOverviewStats);
+// router.get('/dashboard', adminController.default.getDashboard);
+// router.get('/stats/overview', adminController.getOverviewStats);
 
 // User management
 router.get('/users', 
-  ValidationMiddleware.validatePagination(),
-  ValidationMiddleware.validateUserFilters(),
+  // ValidationMiddleware.default.validatePagination,
+  // ValidationMiddleware.validateUserFilters(),
   adminController.getUsers
 );
 
+/*
 router.get('/users/:id', 
-  ValidationMiddleware.validateObjectId('id'),
+  ...ValidationMiddleware.validateObjectId('id'),
   adminController.getUser
 );
 
@@ -91,5 +114,5 @@ router.get('/audit',
   ValidationMiddleware.validateAuditFilters(),
   adminController.getAuditLogs
 );
-
+*/
 export default router;

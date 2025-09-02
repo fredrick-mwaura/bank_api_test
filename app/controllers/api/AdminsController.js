@@ -3,6 +3,7 @@ import * as emailService from '../../Services/EmailService.js'
 import { config } from "../../../config/index.js"
 import logger from "../../utils/logger.js"
 import bcrypt from "bcryptjs"
+import User from "../../Models/User.js"
 
 class AdminsController{
 
@@ -24,7 +25,7 @@ class AdminsController{
             return data 
           })
           .catch((err) => {
-            console.error("Failed to fetch location from ipstack", err)
+            console.error("Failed to fetch location", err)
             return {}
           })
 
@@ -57,6 +58,7 @@ class AdminsController{
         message: "Can not create account"
       })
     }
+    console.log("the request is", req.body)
     try{
       if(!req.body) {
         return res.status(400).json({
@@ -166,4 +168,30 @@ class AdminsController{
     }
 
   }
+  async getUsers(req, res){
+    try{
+      if(!req.user || req.user.role !== 'admin'){
+        logger.warn('Unauthorized access attempt to getUsers', {user: req.user})
+        return res.status(403).json({
+          success: false,
+          message: "Access denied!"
+        })
+      }
+      let users = await User.find().select('-password -createdAt -updatedAt -__v');
+      res.status(200).json({
+        success: true,
+        message: "users retrieved successfully",
+        data: users
+      })
+    }catch(error){
+      logger.error('error in getUsers', error)
+      console.log("error", error)
+      return res.status(500).json({
+        success: false,
+        message: "failed to retrieve users"
+      })
+    }
+  }
 }
+const adminsController = new AdminsController()
+export default adminsController

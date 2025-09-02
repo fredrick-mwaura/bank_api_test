@@ -83,7 +83,7 @@ class AuthMiddleware{
       })
     }
   } 
-  //role based authentication
+  //role based authentication - admin & super admin
   static authorize (permissions = []) {
     // roles param can be a single role string (e.g. 'user') 
     // or an array of roles (e.g. ['admin', 'user'])
@@ -107,38 +107,6 @@ class AuthMiddleware{
       }
       next()
     }
-  }
-  // admin => users only
-  static admin(req, res, next){
-    if(!req.user){
-      return res.status(401).json({
-        status: "error",
-        message: "Login first"
-      })
-    }
-    if(req.user.role !== "admin"){
-      return res.status(403).json({
-        status: "error",
-        message: "you're unauthorized to access."
-      })
-    }
-    next()
-  }
-//all routes must be 1 logged in.
-  static superAdmin(req, res, next){
-    if(!req.user){
-      return res.status(401).json({
-        status: "error",
-        message: "Login first"
-      })
-    }
-    if(req.user.role !== "superadmin"){
-      return res.status(403).json({
-        status: "error",
-        message: "you're unauthorized to access."
-      })
-    }
-    next()
   }
 }
 

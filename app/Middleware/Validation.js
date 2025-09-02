@@ -74,6 +74,13 @@ export class ValidationMiddleware {
     ]
   }
 
+  static validateAdminRegistration() {
+    return [
+      body["email"].isEmail().normalizeEmail().withMessage("please provide a valid email address"),
+      body["password"].isNotEmpty().withMessage("Password is required"),
+    ]
+  }
+
   // Login validation rules
   static validateLogin() {
     return [

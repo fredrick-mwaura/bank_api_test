@@ -11,6 +11,9 @@ import userRoutes from '../routes/users.js'
 import transactionRoutes from '../routes/transaction.js'
 import { requestLogger } from './Middleware/RequestLogger.js'
 import { config } from '../config/index.js'
+import logger from './utils/logger.js'
+import expressLayouts from 'express-ejs-layouts'
+import adminRoutes from '../routes/admin.js'
 
 const app = express()
 
@@ -69,21 +72,14 @@ app.use(mongoSanitize())
 app.set("view engine", "ejs");
 app.set("views", "Resources/Views");
 
+// layouts
+// app.use(expressLayouts);
+// app.set("layout", "layouts/main");
+
 //rate limiting behind reverse proxy
 app.set('trust proxy', 1)
-
-//security middleware
-// app.use(
-//   helmet.contentSecurityPolicy({
-//     directives: {
-//       defaultSrc: ["'self'"],
-//       scriptSrc: ["'self'", "'nonce-firebase_hehe"]
-//     }
-//   })
-// )
-// app.use(securityHeaders);
 app.use(cors({
-  origin: config.cors.origin, //||fallback
+  origin: config.cors.origin, // http://localhost:3000
   credentials: true,
   methods:[
     'GET', 'POST', 'PUT', 'DELETE', 'PATCH'
@@ -123,22 +119,36 @@ app.get('/', (req, res)=> {
   });
 });
 
-//grouping routes
+//group routes
 app.use('/api/auth', authRoutes)
 app.use('/api/users', userRoutes)
 // app.use('/api/accounts', accountRoutes);
 app.use('/api/transactions', transactionRoutes)
-// app.use('auth', authRoutes)
+app.use('/fengi', adminRoutes)
+
+//500 - unhandled errors
+app.use((err, req, res, next) => {
+  logger.error('Unhandled error:', {
+    error: err,
+    req: req
+  });
+  console.log("server error", err)
+  res.status(500).json({
+    status: 'error',
+    message: 'Internal Server Error'
+  });
+})
 
 //handle 404
-
 app.use((req, res) => {
+  logger.info(`Route not found: ${req.originalUrl}`, {
+    params_included: req.params
+  });
   res.status(404).json({
     status: 'error',
     message: `Route ${req.originalUrl} not found`
   });
 });
-
 
 //exceptions
 app.use(errorHandler)

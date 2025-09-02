@@ -6,7 +6,6 @@ import notificationService from "../Services/notificationService.js"
 import auditService from "../Services/AuditService.js"
 import logger from "../utils/logger.js"
 // import { generateTransactionId } from "../utils/helpers"
-import {config} from "../../config/index.js"
 import mongoose from "mongoose" // Declare mongoose variable
 
 // Laravel-style transaction controller

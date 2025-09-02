@@ -17,6 +17,9 @@ importers:
       bcryptjs:
         specifier: ^3.0.2
         version: 3.0.2
+      body-parser:
+        specifier: ^2.2.0
+        version: 2.2.0
       compression:
         specifier: ^1.8.1
         version: 1.8.1
@@ -35,6 +38,9 @@ importers:
       express:
         specifier: ^5.1.0
         version: 5.1.0
+      express-ejs-layouts:
+        specifier: ^2.5.1
+        version: 2.5.1
       express-mongo-sanitize:
         specifier: ^2.2.0
         version: 2.2.0
@@ -721,6 +727,9 @@ packages:
   event-target-shim@5.0.1:
     resolution: {integrity: sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==}
     engines: {node: '>=6'}
+
+  express-ejs-layouts@2.5.1:
+    resolution: {integrity: sha512-IXROv9n3xKga7FowT06n1Qn927JR8ZWDn5Dc9CJQoiiaaDqbhW5PDmWShzbpAa2wjWT1vJqaIM1S6vJwwX11gA==}
 
   express-mongo-sanitize@2.2.0:
     resolution: {integrity: sha512-PZBs5nwhD6ek9ZuP+W2xmpvcrHwXZxD5GdieX2dsjPbAbH4azOkrHbycBud2QRU+YQF1CT+pki/lZGedHgo/dQ==}
@@ -2350,6 +2359,8 @@ snapshots:
 
   event-target-shim@5.0.1:
     optional: true
+
+  express-ejs-layouts@2.5.1: {}
 
   express-mongo-sanitize@2.2.0: {}
 
